@@ -53,6 +53,7 @@ qishi-note-vault-tos7/
 │   └── postrm
 ├── docs/
 │   ├── API.md
+│   ├── BUILD_AND_RELEASE_GUIDE_CN.md
 │   └── PROJECT_LAYOUT.md
 ├── config.ini
 ├── qishi-note-vault.lang
@@ -86,6 +87,8 @@ py -3 -m unittest discover -s backend/tests -v
 ```
 
 ## 构建
+
+完整的版本修改、测试、打包、GitHub 发布和 TOS 安装步骤见 [测试、打包与发布详细指南](docs/BUILD_AND_RELEASE_GUIDE_CN.md)。
 
 构建脚本只使用 Python 标准库，不要求本机安装 `dpkg-deb`。
 
