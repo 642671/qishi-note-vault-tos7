@@ -1,0 +1,97 @@
+[zh-cn]
+name = "启思笔记"
+auth = "qishiyi"
+descript = "私有 Markdown 知识库，支持标签、全文搜索、置顶、归档、回收站、附件、导入导出和备份。"
+release_note = "首个版本：本地 Markdown 笔记、标签、搜索、附件及备份功能。"
+important = "笔记和附件保存在 NAS 应用数据目录中，请定期执行导出备份。"
+
+[zh-hk]
+name = "啟思筆記"
+auth = "qishiyi"
+descript = "私人 Markdown 知識庫，支援標籤、全文搜尋、置頂、封存、回收站、附件、匯入匯出和備份。"
+release_note = "首個版本：本機 Markdown 筆記、標籤、搜尋、附件及備份功能。"
+important = "筆記和附件保存在 NAS 應用資料目錄中，請定期執行匯出備份。"
+
+[en-us]
+name = "Qishi Note Vault"
+auth = "qishiyi"
+descript = "Private Markdown knowledge base with tags, full-text search, pin, archive, trash, attachments, import, export, and backup."
+release_note = "Initial release with local Markdown notes, tags, search, attachments, and backup support."
+important = "Notes and attachments are stored in the NAS application data directory. Export backups regularly."
+
+[fr-fr]
+name = "Qishi Note Vault"
+auth = "qishiyi"
+descript = "Base de connaissances Markdown privee avec tags, recherche, epinglage, archive, corbeille, pieces jointes et sauvegarde."
+release_note = "Premiere version avec notes Markdown locales, tags, recherche, pieces jointes et sauvegarde."
+important = "Les notes et pieces jointes sont stockees dans le dossier de donnees de l'application. Exportez regulierement une sauvegarde."
+
+[de-de]
+name = "Qishi Notiz-Tresor"
+auth = "qishiyi"
+descript = "Private Markdown-Wissensdatenbank mit Tags, Volltextsuche, Anpinnen, Archiv, Papierkorb, Anhangen und Backup."
+release_note = "Erste Version mit lokalen Markdown-Notizen, Tags, Suche, Anhangen und Backup."
+important = "Notizen und Anhange liegen im Datenverzeichnis der Anwendung. Erstellen Sie regelmaessig Export-Backups."
+
+[it-it]
+name = "Qishi Note Vault"
+auth = "qishiyi"
+descript = "Base di conoscenza Markdown privata con tag, ricerca, fissaggio, archivio, cestino, allegati e backup."
+release_note = "Prima versione con note Markdown locali, tag, ricerca, allegati e backup."
+important = "Note e allegati sono salvati nella directory dati dell'applicazione. Esporta regolarmente un backup."
+
+[es-es]
+name = "Qishi Note Vault"
+auth = "qishiyi"
+descript = "Base de conocimiento Markdown privada con etiquetas, busqueda, fijados, archivo, papelera, adjuntos y copias."
+release_note = "Primera version con notas Markdown locales, etiquetas, busqueda, adjuntos y copias."
+important = "Las notas y adjuntos se guardan en el directorio de datos de la aplicacion. Exporta copias con regularidad."
+
+[hu-hu]
+name = "Qishi Jegyzettar"
+auth = "qishiyi"
+descript = "Privat Markdown tudasbazis cimkekkel, keresesel, kituzessel, archivummal, kukaval, mellékletekkel es mentessel."
+release_note = "Elso verzio helyi Markdown jegyzetekkel, cimkekkel, keresesel, mellékletekkel es mentessel."
+important = "A jegyzetek es mellékletek az alkalmazas adatkonyvtaraban tarolodnak. Rendszeresen exportaljon mentest."
+
+[ja-jp]
+name = "Qishi ノート保管庫"
+auth = "qishiyi"
+descript = "タグ、全文検索、固定、アーカイブ、ゴミ箱、添付、入出力、バックアップに対応したプライベート Markdown ナレッジベースです。"
+release_note = "初回版：ローカル Markdown ノート、タグ、検索、添付、バックアップ機能。"
+important = "ノートと添付ファイルは NAS アプリのデータディレクトリに保存されます。定期的にエクスポートしてください。"
+
+[ko-kr]
+name = "Qishi 노트 보관함"
+auth = "qishiyi"
+descript = "태그, 전체 검색, 고정, 보관, 휴지통, 첨부, 가져오기, 내보내기 및 백업을 지원하는 개인 Markdown 지식 베이스입니다."
+release_note = "첫 버전: 로컬 Markdown 노트, 태그, 검색, 첨부 및 백업 기능."
+important = "노트와 첨부 파일은 NAS 애플리케이션 데이터 디렉터리에 저장됩니다. 정기적으로 백업을 내보내세요."
+
+[pl-pl]
+name = "Qishi Skarbiec Notatek"
+auth = "qishiyi"
+descript = "Prywatna baza wiedzy Markdown z tagami, wyszukiwaniem, przypinaniem, archiwum, koszem, zalacznikami i kopiami."
+release_note = "Pierwsza wersja z lokalnymi notatkami Markdown, tagami, wyszukiwaniem, zalacznikami i kopiami."
+important = "Notatki i zalaczniki sa przechowywane w katalogu danych aplikacji. Regularnie eksportuj kopie zapasowa."
+
+[ru-ru]
+name = "Qishi Khranilishche zametok"
+auth = "qishiyi"
+descript = "Chastnaya baza znanij Markdown s tegami, poiskom, zakrepeleniem, arhivom, korzinoj, vlozheniyami i rezervnymi kopiyami."
+release_note = "Pervaya versiya s lokalnymi zametkami Markdown, tegami, poiskom, vlozheniyami i rezervnymi kopiyami."
+important = "Zametki i vlozheniya hranyatsya v kataloge dannyh prilozheniya. Regulyarno eksportirujte rezervnuyu kopiyu."
+
+[tr-tr]
+name = "Qishi Not Kasasi"
+auth = "qishiyi"
+descript = "Etiketler, arama, sabitleme, arsiv, cop kutusu, ekler, ice/disa aktarma ve yedekleme ozellikli ozel Markdown bilgi tabani."
+release_note = "Ilk surum: yerel Markdown notlari, etiketler, arama, ekler ve yedekleme."
+important = "Notlar ve ekler NAS uygulama veri dizininde saklanir. Duzenli olarak yedek disa aktarin."
+
+[pt-pt]
+name = "Qishi Cofre de Notas"
+auth = "qishiyi"
+descript = "Base de conhecimento Markdown privada com etiquetas, pesquisa, fixacao, arquivo, lixo, anexos, importacao, exportacao e copia."
+release_note = "Primeira versao com notas Markdown locais, etiquetas, pesquisa, anexos e copia de seguranca."
+important = "As notas e anexos ficam no diretorio de dados da aplicacao. Exporte copias de seguranca regularmente."

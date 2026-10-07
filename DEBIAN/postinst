@@ -1,0 +1,35 @@
+#!/bin/sh
+set -e
+
+APP_ID="qishi-note-vault"
+APP_USER="qishi-note-vault"
+SYSTEM_ID="qishinotevault-system"
+APP_DIR="/usr/local/${APP_ID}"
+UNIT_SRC="${APP_DIR}/init.d/${SYSTEM_ID}.service"
+UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
+
+case "$1" in
+    configure)
+        # The platform creates APP_USER during installation. Do not create it here.
+        if getent passwd "${APP_USER}" >/dev/null 2>&1; then
+            chown -R "${APP_USER}:${APP_USER}" \
+                "${APP_DIR}/data" "${APP_DIR}/logs" 2>/dev/null || true
+            chmod 0750 "${APP_DIR}/data" "${APP_DIR}/logs" 2>/dev/null || true
+        fi
+
+        mkdir -p /var/api
+        if getent passwd "${APP_USER}" >/dev/null 2>&1; then
+            chown "${APP_USER}:${APP_USER}" /var/api 2>/dev/null || true
+        fi
+        chmod 0770 /var/api 2>/dev/null || true
+
+        if [ -d /run/systemd/system ]; then
+            ln -sf "${UNIT_SRC}" "${UNIT_DST}"
+            systemctl daemon-reload || true
+            systemctl enable "${SYSTEM_ID}.service" || true
+            systemctl start "${SYSTEM_ID}.service" || true
+        fi
+        ;;
+esac
+
+exit 0

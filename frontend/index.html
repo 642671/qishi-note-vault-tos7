@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qishi Note Vault</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4ed8'/%3E%3Cpath d='M9 7h15v18H9z' fill='%23eff6ff'/%3E%3Cpath d='M13 11h7M13 16h7M13 21h4' stroke='%231d4ed8' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css?v=1.0.001">
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="m15 18-6-6"/><path d="m19 9-7-7-4 4 1 3-5 5 6 6 5-5 3 1 4-4-3-3Z"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></symbol>
+    <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.4 11.6-8.5 8.5a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></symbol>
+  </svg>
+
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <div>
+          <p class="eyebrow">Private Markdown</p>
+          <h1>启思笔记</h1>
+        </div>
+        <span id="serviceBadge" class="service-badge is-checking" title="服务状态"></span>
+      </div>
+
+      <button id="newNoteButton" class="new-note-button" type="button">
+        <svg><use href="#i-plus"></use></svg>
+        新建笔记
+      </button>
+
+      <label class="search-box">
+        <svg><use href="#i-search"></use></svg>
+        <input id="searchInput" type="search" placeholder="搜索标题和正文" autocomplete="off">
+      </label>
+
+      <nav class="view-nav" aria-label="笔记视图">
+        <button class="view-button is-active" type="button" data-view="active">
+          <span>全部笔记</span><span id="countActive" class="count">0</span>
+        </button>
+        <button class="view-button" type="button" data-view="pinned">
+          <span>置顶</span><span id="countPinned" class="count">0</span>
+        </button>
+        <button class="view-button" type="button" data-view="archived">
+          <span>归档</span><span id="countArchived" class="count">0</span>
+        </button>
+        <button class="view-button" type="button" data-view="trash">
+          <span>回收站</span><span id="countTrashed" class="count">0</span>
+        </button>
+      </nav>
+
+      <section class="tag-section">
+        <div class="section-label">标签</div>
+        <div id="tagList" class="tag-list"></div>
+      </section>
+
+      <div class="sidebar-actions">
+        <button id="exportButton" class="icon-text-button" type="button" title="导出完整备份">
+          <svg><use href="#i-download"></use></svg>
+          导出
+        </button>
+        <button id="importButton" class="icon-text-button" type="button" title="导入笔记备份">
+          <svg><use href="#i-upload"></use></svg>
+          导入
+        </button>
+        <input id="importFileInput" class="hidden-input" type="file" accept=".zip,application/zip">
+      </div>
+    </aside>
+
+    <section class="note-list-pane" aria-label="笔记列表">
+      <div class="pane-heading">
+        <div>
+          <h2 id="listTitle">全部笔记</h2>
+          <p id="listSubtitle">0 条记录</p>
+        </div>
+      </div>
+      <div id="noteList" class="note-list"></div>
+    </section>
+
+    <section class="editor-pane" aria-label="笔记编辑区">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">
+          <svg><use href="#i-file"></use></svg>
+        </div>
+        <h2>选择一条笔记</h2>
+        <p>或者创建新的 Markdown 笔记。</p>
+      </div>
+
+      <div id="editorWorkspace" class="editor-workspace is-hidden">
+        <header class="editor-header">
+          <input id="noteTitle" class="note-title-input" type="text" maxlength="200" placeholder="笔记标题">
+          <div class="editor-actions">
+            <button id="saveButton" class="tool-button" type="button" title="保存">
+              <svg><use href="#i-save"></use></svg>
+            </button>
+            <button id="previewButton" class="tool-button" type="button" title="切换预览">
+              <svg><use href="#i-eye"></use></svg>
+            </button>
+            <button id="pinButton" class="tool-button" type="button" title="置顶或取消置顶">
+              <svg><use href="#i-pin"></use></svg>
+            </button>
+            <button id="archiveButton" class="tool-button" type="button" title="归档或取消归档">
+              <svg><use href="#i-archive"></use></svg>
+            </button>
+            <button id="trashButton" class="tool-button danger" type="button" title="移入回收站或永久删除">
+              <svg><use href="#i-trash"></use></svg>
+            </button>
+            <button id="restoreButton" class="tool-button is-hidden" type="button" title="恢复笔记">
+              <svg><use href="#i-restore"></use></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="metadata-row">
+          <label class="tag-input-wrap">
+            <span>标签</span>
+            <input id="noteTags" type="text" placeholder="工作, 学习, 项目">
+          </label>
+          <span id="saveState" class="save-state">已保存</span>
+        </div>
+
+        <div class="editor-grid" id="editorGrid">
+          <textarea id="noteBody" class="markdown-editor" spellcheck="true" placeholder="# 标题&#10;&#10;开始记录..."></textarea>
+          <article id="markdownPreview" class="markdown-preview"></article>
+        </div>
+
+        <section class="attachment-section">
+          <div class="attachment-heading">
+            <div>
+              <strong>附件</strong>
+              <span>支持图片、PDF、Markdown、文本和压缩包，单个文件最大 8 MB。</span>
+            </div>
+            <button id="attachmentButton" class="secondary-button" type="button">
+              <svg><use href="#i-paperclip"></use></svg>
+              添加附件
+            </button>
+            <input id="attachmentFileInput" class="hidden-input" type="file">
+          </div>
+          <div id="attachmentList" class="attachment-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js?v=1.0.001"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+APP_ID="qishi-note-vault"
+APP_USER="qishi-note-vault"
+SYSTEM_ID="qishinotevault-system"
+UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
+
+rm -f "${UNIT_DST}"
+rm -f "/var/api/${APP_ID}.sock"
+
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload || true
+fi
+
+if [ "$1" = "purge" ]; then
+    if id "${APP_USER}" >/dev/null 2>&1; then
+        userdel "${APP_USER}" 2>/dev/null || true
+    fi
+    rm -rf "/usr/local/${APP_ID}/data" "/usr/local/${APP_ID}/logs"
+fi
+
+exit 0

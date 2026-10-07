@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+SYSTEM_ID="qishinotevault-system"
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        if [ -d /run/systemd/system ]; then
+            systemctl stop "${SYSTEM_ID}.service" || true
+            systemctl disable "${SYSTEM_ID}.service" || true
+        fi
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,12 @@
+Package: qishi-note-vault
+Version: 1.0.001
+Architecture: amd64
+Section: utils
+Priority: optional
+Maintainer: qishiyi <qishiyi77@gmail.com>
+Depends: python3 (>= 3.10), systemd
+Description: Private Markdown knowledge base for TOS
+ Local Markdown notes with tags, search, pin, archive,
+ trash, import/export, and backup support. The WebUI
+ communicates with a local Python service over the
+ TOS Unix socket proxy.

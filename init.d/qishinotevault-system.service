@@ -1,0 +1,41 @@
+[Unit]
+Description=Qishi Note Vault WebUI service
+After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+Type=simple
+User=qishi-note-vault
+Group=qishi-note-vault
+WorkingDirectory=/usr/local/qishi-note-vault
+ExecStart=/usr/bin/python3 /usr/local/qishi-note-vault/bin/qishi-note-vault-service
+EnvironmentFile=-/usr/local/qishi-note-vault/qishi-note-vault.env
+TimeoutStartSec=30
+TimeoutStopSec=10
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_UNIX
+
+ReadWritePaths=/usr/local/qishi-note-vault/data /usr/local/qishi-note-vault/logs /var/api
+LimitNOFILE=65536
+LimitNPROC=256
+MemoryMax=256M
+CPUQuota=50%
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
