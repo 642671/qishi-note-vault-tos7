@@ -350,7 +350,7 @@ def create_server() -> ThreadedUnixHTTPServer:
 def stop_server_runtime(
     server: ThreadedUnixHTTPServer,
     worker: threading.Thread,
-    timeout: float = 3.0,
+    timeout: float = 2.0,
 ) -> None:
     """Stop the HTTP loop without letting cleanup block systemd indefinitely."""
     shutdown_thread = threading.Thread(

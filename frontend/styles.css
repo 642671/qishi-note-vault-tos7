@@ -13,7 +13,7 @@
   --danger: #b42318;
   --success: #067647;
   --shadow: 0 18px 44px rgba(24, 43, 72, 0.10);
-  --window-safe-top: 44px;
+  --window-safe-top: 56px;
   --window-safe-right: 48px;
   --window-safe-bottom: 24px;
   --window-safe-left: 12px;
@@ -67,6 +67,24 @@ svg {
   width: 0;
   height: 0;
   overflow: hidden;
+}
+
+.window-titlebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  height: var(--window-safe-top);
+  padding: 0 136px 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  pointer-events: none;
 }
 
 .app-shell {
