@@ -1,3 +1,3 @@
 """Qishi Note Vault backend package."""
 
-__version__ = "1.0.009"
+__version__ = "1.0.010"

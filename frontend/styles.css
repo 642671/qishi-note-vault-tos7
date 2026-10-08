@@ -14,9 +14,9 @@
   --success: #067647;
   --shadow: 0 18px 44px rgba(24, 43, 72, 0.10);
   --window-safe-top: 56px;
-  --window-safe-right: 48px;
-  --window-safe-bottom: 24px;
-  --window-safe-left: 12px;
+  --window-safe-right: 0px;
+  --window-safe-bottom: 0px;
+  --window-safe-left: 0px;
   --shell-height: calc(
     100vh - var(--window-safe-top) - var(--window-safe-bottom)
   );
@@ -38,7 +38,7 @@ body {
     var(--window-safe-bottom) var(--window-safe-left);
   overflow: hidden;
   color: var(--ink);
-  background: var(--surface-soft);
+  background: var(--surface);
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -90,15 +90,15 @@ svg {
 .app-shell {
   display: grid;
   grid-template-columns: 270px 320px minmax(0, 1fr);
-  width: min(1500px, 100%);
+  width: 100%;
   height: var(--shell-height);
   min-height: 0;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 
 .sidebar,
@@ -418,6 +418,18 @@ h2 {
   height: 100%;
   overflow: hidden;
   background: #ffffff;
+}
+
+.editor-pane::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 20px;
+  height: 20px;
+  background: var(--surface);
+  content: "";
+  pointer-events: none;
 }
 
 .empty-state {
