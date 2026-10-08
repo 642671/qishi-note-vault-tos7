@@ -8,7 +8,13 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
 
-from qishi_note_vault.database import Database
+from qishi_note_vault.database import (
+    Database,
+    MAX_BODY_CHARS,
+    MAX_TAG_CHARS,
+    MAX_TAGS_PER_NOTE,
+    MAX_TITLE_CHARS,
+)
 
 
 class DatabaseTests(unittest.TestCase):
@@ -66,6 +72,28 @@ class DatabaseTests(unittest.TestCase):
         restored = second.get_note(note["id"])
         self.assertEqual(restored["body"], "# Backup body")
         self.assertEqual(restored["tags"], ["backup"])
+
+    def test_input_boundaries(self) -> None:
+        note = self.database.create_note(
+            title="T" * (MAX_TITLE_CHARS + 1),
+            body="Body",
+            tags=[f"tag-{index}-" + "x" * 50 for index in range(MAX_TAGS_PER_NOTE + 5)],
+        )
+        self.assertEqual(len(note["title"]), MAX_TITLE_CHARS)
+        self.assertEqual(len(note["tags"]), MAX_TAGS_PER_NOTE)
+        self.assertTrue(all(len(tag) <= MAX_TAG_CHARS for tag in note["tags"]))
+
+        with self.assertRaises(ValueError):
+            self.database.create_note(
+                title="Too long body",
+                body="x" * (MAX_BODY_CHARS + 1),
+            )
+
+        one = self.database.create_note(title="Page limit", body="Body")
+        self.assertEqual(
+            [item["id"] for item in self.database.list_notes(limit=0)],
+            [one["id"]],
+        )
 
 
 if __name__ == "__main__":

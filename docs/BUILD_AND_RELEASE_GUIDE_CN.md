@@ -33,7 +33,7 @@ https://github.com/642671/qishi-note-vault-tos7
 包类型：Deb 单包
 打开方式：WebUI 内部 iframe
 后端：Python 3.10 / SQLite / Unix Socket
-当前版本：1.0.011
+当前版本：1.0.012
 systemd 服务：qishinotevault-system.service
 ```
 
@@ -123,7 +123,7 @@ git status --short --branch
 当前版本是：
 
 ```text
-1.0.011
+1.0.012
 ```
 
 新版本必须使用数字和点，例如：

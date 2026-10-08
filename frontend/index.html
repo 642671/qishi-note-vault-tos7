@@ -7,8 +7,21 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Qishi Note Vault</title>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("qishi-note-vault-theme");
+        var dark = saved
+          ? saved === "dark"
+          : window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    }());
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4ed8'/%3E%3Cpath d='M9 7h15v18H9z' fill='%23eff6ff'/%3E%3Cpath d='M13 11h7M13 16h7M13 21h4' stroke='%231d4ed8' stroke-width='2'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css?v=1.0.011">
+  <link rel="stylesheet" href="./styles.css?v=1.0.012">
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true">
@@ -24,6 +37,8 @@
     <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.4 11.6-8.5 8.5a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></symbol>
   </svg>
 
   <header class="window-titlebar" aria-hidden="true">
@@ -37,7 +52,12 @@
           <p class="eyebrow">Private Markdown</p>
           <h1>启思笔记</h1>
         </div>
-        <span id="serviceBadge" class="service-badge is-checking" title="服务状态"></span>
+        <div class="brand-actions">
+          <button id="themeToggle" class="theme-toggle" type="button" title="切换到暗色模式" aria-label="切换到暗色模式">
+            <svg><use id="themeIcon" href="#i-moon"></use></svg>
+          </button>
+          <span id="serviceBadge" class="service-badge is-checking" title="服务状态"></span>
+        </div>
       </div>
 
       <button id="newNoteButton" class="new-note-button" type="button">
@@ -47,7 +67,7 @@
 
       <label class="search-box">
         <svg><use href="#i-search"></use></svg>
-        <input id="searchInput" type="search" placeholder="搜索标题和正文" autocomplete="off">
+        <input id="searchInput" type="search" maxlength="200" placeholder="搜索标题和正文" autocomplete="off">
       </label>
 
       <nav class="view-nav" aria-label="笔记视图">
@@ -130,13 +150,13 @@
         <div class="metadata-row">
           <label class="tag-input-wrap">
             <span>标签</span>
-            <input id="noteTags" type="text" placeholder="工作, 学习, 项目">
+          <input id="noteTags" type="text" maxlength="1000" placeholder="工作, 学习, 项目；最多 20 个标签">
           </label>
           <span id="saveState" class="save-state">已保存</span>
         </div>
 
         <div class="editor-grid" id="editorGrid">
-          <textarea id="noteBody" class="markdown-editor" spellcheck="true" placeholder="# 标题&#10;&#10;开始记录..."></textarea>
+          <textarea id="noteBody" class="markdown-editor" maxlength="500000" spellcheck="true" placeholder="# 标题&#10;&#10;开始记录..."></textarea>
           <article id="markdownPreview" class="markdown-preview"></article>
         </div>
 
@@ -150,7 +170,7 @@
               <svg><use href="#i-paperclip"></use></svg>
               添加附件
             </button>
-            <input id="attachmentFileInput" class="hidden-input" type="file">
+            <input id="attachmentFileInput" class="hidden-input" type="file" accept=".csv,.gif,.jpeg,.jpg,.json,.md,.pdf,.png,.svg,.txt,.webp,.zip">
           </div>
           <div id="attachmentList" class="attachment-list"></div>
         </section>
@@ -159,6 +179,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=1.0.011"></script>
+  <script src="./app.js?v=1.0.012"></script>
 </body>
 </html>

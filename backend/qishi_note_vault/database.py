@@ -9,6 +9,14 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
+MAX_TITLE_CHARS = 200
+MAX_BODY_CHARS = 500_000
+MAX_TAG_CHARS = 40
+MAX_TAGS_PER_NOTE = 20
+MAX_QUERY_CHARS = 200
+MIN_PAGE_LIMIT = 1
+MAX_PAGE_LIMIT = 500
+
 
 class NoteNotFoundError(LookupError):
     """Raised when a requested note does not exist."""
@@ -89,13 +97,20 @@ class Database:
         normalized: list[str] = []
         seen: set[str] = set()
         for value in tags or []:
-            name = str(value).strip()[:40]
+            name = str(value).strip()[:MAX_TAG_CHARS]
             key = name.casefold()
             if not name or key in seen:
                 continue
             seen.add(key)
             normalized.append(name)
-        return normalized[:20]
+        return normalized[:MAX_TAGS_PER_NOTE]
+
+    @staticmethod
+    def _normalize_body(body: Any) -> str:
+        value = str(body)
+        if len(value) > MAX_BODY_CHARS:
+            raise ValueError(f"body exceeds {MAX_BODY_CHARS} characters")
+        return value
 
     @staticmethod
     def _tag_names(connection: sqlite3.Connection, note_id: str) -> list[str]:
@@ -150,8 +165,8 @@ class Database:
     ) -> dict[str, Any]:
         note_id = str(uuid.uuid4())
         now = int(time.time())
-        clean_title = str(title).strip()[:200] or "Untitled"
-        clean_body = str(body)
+        clean_title = str(title).strip()[:MAX_TITLE_CHARS] or "Untitled"
+        clean_body = self._normalize_body(body)
         with self.connection() as connection:
             connection.execute(
                 """
@@ -188,8 +203,12 @@ class Database:
             if row is None:
                 raise NoteNotFoundError(note_id)
 
-            next_title = row["title"] if title is None else (str(title).strip()[:200] or "Untitled")
-            next_body = row["body"] if body is None else str(body)
+            next_title = (
+                row["title"]
+                if title is None
+                else (str(title).strip()[:MAX_TITLE_CHARS] or "Untitled")
+            )
+            next_body = row["body"] if body is None else self._normalize_body(body)
             next_pinned = int(row["pinned"] if pinned is None else bool(pinned))
             next_archived = int(row["archived"] if archived is None else bool(archived))
             next_trashed = int(row["trashed"] if trashed is None else bool(trashed))
@@ -235,7 +254,7 @@ class Database:
         else:
             where.append("notes.trashed = 0 AND notes.archived = 0")
 
-        clean_query = str(query).strip()
+        clean_query = str(query).strip()[:MAX_QUERY_CHARS]
         if clean_query:
             where.append("(notes.title LIKE ? COLLATE NOCASE OR notes.body LIKE ? COLLATE NOCASE)")
             wildcard = f"%{clean_query}%"
@@ -255,7 +274,7 @@ class Database:
             )
             parameters.append(clean_tag)
 
-        safe_limit = max(1, min(int(limit), 500))
+        safe_limit = max(MIN_PAGE_LIMIT, min(int(limit), MAX_PAGE_LIMIT))
         safe_offset = max(0, int(offset))
         parameters.extend([safe_limit, safe_offset])
         sql = f"""
@@ -400,8 +419,8 @@ class Database:
                     continue
                 note_id = str(item["id"])
                 existing = connection.execute("SELECT id FROM notes WHERE id = ?", (note_id,)).fetchone()
-                title = str(item.get("title", "")).strip()[:200] or "Untitled"
-                body = str(item.get("body", ""))
+                title = str(item.get("title", "")).strip()[:MAX_TITLE_CHARS] or "Untitled"
+                body = self._normalize_body(item.get("body", ""))
                 created_at = int(item.get("created_at") or now)
                 updated_at = int(item.get("updated_at") or now)
                 connection.execute(

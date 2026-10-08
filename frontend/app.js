@@ -2,6 +2,8 @@
 
 var APP_ID = "qishi-note-vault";
 var API_ROOT = "/v2/proxy/" + APP_ID;
+var MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+var MAX_BACKUP_BYTES = 64 * 1024 * 1024;
 var state = {
   notes: [],
   tags: [],
@@ -12,7 +14,8 @@ var state = {
   query: "",
   dirty: false,
   saveTimer: 0,
-  previewMode: "split"
+  previewMode: "split",
+  theme: "light"
 };
 
 function byId(id) {
@@ -60,14 +63,58 @@ async function apiRequest(path, options) {
   return data;
 }
 
-function toast(message) {
+function toast(message, tone) {
   var element = byId("toast");
+  element.className = "toast toast-" + (tone || "success");
   element.textContent = message;
   element.classList.add("is-visible");
   window.clearTimeout(element._timer);
   element._timer = window.setTimeout(function () {
     element.classList.remove("is-visible");
   }, 2600);
+}
+
+function toastError(error) {
+  toast(error && error.message ? error.message : String(error), "error");
+}
+
+function applyTheme(theme) {
+  state.theme = theme === "dark" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", state.theme);
+  var icon = byId("themeIcon");
+  var button = byId("themeToggle");
+  var dark = state.theme === "dark";
+  if (icon) {
+    icon.setAttribute("href", dark ? "#i-sun" : "#i-moon");
+  }
+  if (button) {
+    var label = dark ? "切换到浅色模式" : "切换到暗色模式";
+    button.title = label;
+    button.setAttribute("aria-label", label);
+  }
+  try {
+    localStorage.setItem(APP_ID + "-theme", state.theme);
+  } catch (error) {
+    // Storage can be unavailable in privacy-restricted browser contexts.
+  }
+}
+
+function initializeTheme() {
+  var saved = "";
+  try {
+    saved = localStorage.getItem(APP_ID + "-theme") || "";
+  } catch (error) {
+    saved = "";
+  }
+  var preferred = saved || (window.matchMedia
+    && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light");
+  applyTheme(preferred);
+}
+
+function toggleTheme() {
+  applyTheme(state.theme === "dark" ? "light" : "dark");
 }
 
 function setServiceState(online) {
@@ -215,9 +262,18 @@ function formatDate(timestamp) {
 }
 
 function tagsFromInput() {
-  return byId("noteTags").value.split(",").map(function (tag) {
-    return tag.trim();
-  }).filter(Boolean);
+  var normalized = [];
+  var seen = {};
+  byId("noteTags").value.split(",").some(function (value) {
+    var tag = value.trim().slice(0, 40);
+    var key = tag.toLocaleLowerCase();
+    if (tag && !seen[key]) {
+      seen[key] = true;
+      normalized.push(tag);
+    }
+    return normalized.length >= 20;
+  });
+  return normalized;
 }
 
 function updateCounts(stats) {
@@ -326,7 +382,7 @@ function renderAttachments() {
         await selectNote(state.selectedId);
         toast("附件已删除");
       } catch (error) {
-        toast(error.message);
+        toastError(error);
       }
     });
     chip.appendChild(link);
@@ -526,6 +582,9 @@ async function exportBackup() {
 }
 
 async function importBackup(file) {
+  if (file.size > MAX_BACKUP_BYTES) {
+    throw new Error("备份文件不能超过 64 MB");
+  }
   var form = new FormData();
   form.append("file", file, file.name);
   var response = await fetch(API_ROOT + "/backup/import", {
@@ -545,6 +604,12 @@ async function importBackup(file) {
 async function uploadAttachment(file) {
   if (!state.selectedId) {
     return;
+  }
+  if (!file.size) {
+    throw new Error("附件不能为空");
+  }
+  if (file.size > MAX_ATTACHMENT_BYTES) {
+    throw new Error("单个附件不能超过 8 MB");
   }
   var form = new FormData();
   form.append("note_id", state.selectedId);
@@ -572,11 +637,12 @@ async function uploadAttachment(file) {
 }
 
 function bindEvents() {
+  byId("themeToggle").addEventListener("click", toggleTheme);
   byId("newNoteButton").addEventListener("click", function () {
-    createNote().catch(function (error) { toast(error.message); });
+    createNote().catch(toastError);
   });
   byId("saveButton").addEventListener("click", function () {
-    saveCurrent(false).catch(function (error) { toast(error.message); });
+    saveCurrent(false).catch(toastError);
   });
   byId("previewButton").addEventListener("click", function () {
     state.previewMode = state.previewMode === "split"
@@ -587,19 +653,19 @@ function bindEvents() {
     applyPreviewMode();
   });
   byId("pinButton").addEventListener("click", function () {
-    setFlag("pin", !state.current.pinned).catch(function (error) { toast(error.message); });
+    setFlag("pin", !state.current.pinned).catch(toastError);
   });
   byId("archiveButton").addEventListener("click", function () {
-    setFlag("archive", !state.current.archived).catch(function (error) { toast(error.message); });
+    setFlag("archive", !state.current.archived).catch(toastError);
   });
   byId("trashButton").addEventListener("click", function () {
-    trashCurrent().catch(function (error) { toast(error.message); });
+    trashCurrent().catch(toastError);
   });
   byId("restoreButton").addEventListener("click", function () {
-    restoreCurrent().catch(function (error) { toast(error.message); });
+    restoreCurrent().catch(toastError);
   });
   byId("exportButton").addEventListener("click", function () {
-    exportBackup().catch(function (error) { toast(error.message); });
+    exportBackup().catch(toastError);
   });
   byId("importButton").addEventListener("click", function () {
     byId("importFileInput").click();
@@ -608,7 +674,7 @@ function bindEvents() {
     var file = event.target.files[0];
     event.target.value = "";
     if (file) {
-      importBackup(file).catch(function (error) { toast(error.message); });
+      importBackup(file).catch(toastError);
     }
   });
   byId("attachmentButton").addEventListener("click", function () {
@@ -618,7 +684,7 @@ function bindEvents() {
     var file = event.target.files[0];
     event.target.value = "";
     if (file) {
-      uploadAttachment(file).catch(function (error) { toast(error.message); });
+      uploadAttachment(file).catch(toastError);
     }
   });
   document.querySelectorAll(".view-button").forEach(function (button) {
@@ -630,14 +696,14 @@ function bindEvents() {
       });
       byId("editorWorkspace").classList.add("is-hidden");
       byId("emptyState").classList.remove("is-hidden");
-      loadNotes().catch(function (error) { toast(error.message); });
+      loadNotes().catch(toastError);
     });
   });
   byId("searchInput").addEventListener("input", function (event) {
     state.query = event.target.value;
     window.clearTimeout(state._searchTimer);
     state._searchTimer = window.setTimeout(function () {
-      loadNotes().catch(function (error) { toast(error.message); });
+      loadNotes().catch(toastError);
     }, 250);
   });
   byId("noteTitle").addEventListener("input", markDirty);
@@ -646,12 +712,13 @@ function bindEvents() {
   document.addEventListener("keydown", function (event) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
       event.preventDefault();
-      saveCurrent(false).catch(function (error) { toast(error.message); });
+      saveCurrent(false).catch(toastError);
     }
   });
 }
 
 async function initialize() {
+  initializeTheme();
   bindEvents();
   try {
     var health = await apiRequest("/health");
@@ -660,7 +727,7 @@ async function initialize() {
     await Promise.all([loadTags(), loadNotes()]);
   } catch (error) {
     setServiceState(false);
-    toast("后端服务不可用");
+    toast("后端服务不可用", "error");
   }
 }
 

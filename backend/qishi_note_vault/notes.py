@@ -15,6 +15,8 @@ from .database import Database, NoteNotFoundError
 
 MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024
 MAX_BACKUP_BYTES = 64 * 1024 * 1024
+MAX_BACKUP_JSON_BYTES = 10 * 1024 * 1024
+MAX_BACKUP_MEMBERS = 10_000
 ALLOWED_ATTACHMENT_SUFFIXES = {
     ".csv",
     ".gif",
@@ -161,15 +163,21 @@ class NoteService:
             raise AttachmentError("backup must be a valid zip archive") from exc
 
         with archive:
+            members = archive.infolist()
+            if len(members) > MAX_BACKUP_MEMBERS:
+                raise AttachmentError("backup contains too many files")
             try:
-                payload = json.loads(archive.read("notes.json").decode("utf-8"))
+                payload_bytes = archive.read("notes.json")
+                if len(payload_bytes) > MAX_BACKUP_JSON_BYTES:
+                    raise AttachmentError("backup notes.json exceeds 10 MB")
+                payload = json.loads(payload_bytes.decode("utf-8"))
             except (KeyError, UnicodeDecodeError, json.JSONDecodeError) as exc:
                 raise AttachmentError("backup is missing valid notes.json") from exc
 
             result = self.database.import_data(payload)
             known_names = {str(item.get("stored_name", "")) for item in payload.get("attachments", [])}
             total_size = 0
-            for member in archive.infolist():
+            for member in members:
                 if not member.filename.startswith("attachments/"):
                     continue
                 stored_name = Path(member.filename).name

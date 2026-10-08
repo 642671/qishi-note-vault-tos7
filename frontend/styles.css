@@ -22,6 +22,23 @@
   );
 }
 
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e5e7eb;
+  --muted: #94a3b8;
+  --line: #334155;
+  --line-strong: #475569;
+  --surface: #111827;
+  --surface-soft: #0b1220;
+  --surface-muted: #1f2937;
+  --primary: #60a5fa;
+  --primary-strong: #93c5fd;
+  --accent: #f59e0b;
+  --danger: #f87171;
+  --success: #4ade80;
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -122,6 +139,37 @@ svg {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.brand-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.theme-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.brand-actions .service-badge {
+  margin-top: 0;
 }
 
 .eyebrow {
@@ -750,24 +798,157 @@ h2 {
 
 .toast {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 20;
+  top: calc(var(--window-safe-top) + 14px);
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  z-index: 120;
   max-width: min(420px, calc(100% - 44px));
-  padding: 11px 14px;
-  transform: translateY(18px);
+  padding: 10px 16px;
+  transform: translate(-50%, -12px);
   border-radius: 6px;
-  background: #101828;
+  background: var(--success);
   color: #ffffff;
   font-size: 13px;
+  text-align: center;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
   opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .toast.is-visible {
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   opacity: 1;
+}
+
+.toast.toast-error {
+  background: var(--danger);
+}
+
+.toast.toast-info {
+  background: #344054;
+}
+
+html[data-theme="dark"] .sidebar {
+  background: #0f172a;
+}
+
+html[data-theme="dark"] .window-titlebar,
+html[data-theme="dark"] .note-list-pane,
+html[data-theme="dark"] .editor-pane {
+  background: var(--surface);
+}
+
+html[data-theme="dark"] .window-titlebar {
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .search-box input,
+html[data-theme="dark"] .tag-input-wrap input,
+html[data-theme="dark"] .icon-text-button,
+html[data-theme="dark"] .secondary-button,
+html[data-theme="dark"] .tool-button,
+html[data-theme="dark"] .tag-chip,
+html[data-theme="dark"] .attachment-chip {
+  border-color: var(--line);
+  background: #1d2939;
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .view-button {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .view-button:hover,
+html[data-theme="dark"] .view-button.is-active {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+html[data-theme="dark"] .count {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .view-button.is-active .count {
+  background: #1e40af;
+  color: #dbeafe;
+}
+
+html[data-theme="dark"] .note-item {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .note-item:hover {
+  background: #1e293b;
+}
+
+html[data-theme="dark"] .note-item.is-active {
+  border-color: #60a5fa;
+  background: #172554;
+}
+
+html[data-theme="dark"] .markdown-editor {
+  border-color: var(--line);
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .markdown-preview {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .markdown-preview code {
+  background: #1e293b;
+  color: #fca5a5;
+}
+
+html[data-theme="dark"] .markdown-preview pre {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .markdown-preview blockquote {
+  border-color: #64748b;
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .attachment-section {
+  border-color: var(--line);
+  background: #0f172a;
+}
+
+html[data-theme="dark"] .empty-state {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .empty-icon {
+  background: #1e293b;
+}
+
+html[data-theme="dark"] .new-note-button {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .new-note-button:hover {
+  background: #1d4ed8;
+}
+
+html[data-theme="dark"] .theme-toggle {
+  border-color: var(--line);
+  background: #1e293b;
+  color: #dbeafe;
+}
+
+html[data-theme="dark"] .toast.toast-success {
+  background: #15803d;
+}
+
+html[data-theme="dark"] .toast.toast-error {
+  background: #b91c1c;
 }
 
 @media (max-width: 1080px) {
