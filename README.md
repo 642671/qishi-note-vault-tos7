@@ -1,6 +1,6 @@
 # Qishi Note Vault for TOS 7
 
-`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.008`。
+`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.009`。
 
 应用使用 WebUI 内部打开模式，前端通过 TOS 平台代理访问本地 Python 服务：
 
@@ -100,8 +100,8 @@ python build.py --platform aarch64
 生成文件：
 
 ```text
-dist/qishi-note-vault_1.0.008_x86_64.deb
-dist/qishi-note-vault_1.0.008_x86_64.deb.sha256
+dist/qishi-note-vault_1.0.009_x86_64.deb
+dist/qishi-note-vault_1.0.009_x86_64.deb.sha256
 ```
 
 构建脚本会自动检查：
@@ -136,7 +136,7 @@ dist/qishi-note-vault_1.0.008_x86_64.deb.sha256
 发布标签格式：
 
 ```bash
-git tag v1.0.008
+git tag v1.0.009
 git push origin main --tags
 ```
 
