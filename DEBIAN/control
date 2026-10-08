@@ -1,5 +1,5 @@
 Package: qishi-note-vault
-Version: 1.0.007
+Version: 1.0.008
 Architecture: amd64
 Section: utils
 Priority: optional

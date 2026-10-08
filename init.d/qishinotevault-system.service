@@ -7,7 +7,6 @@ StartLimitIntervalSec=60
 [Service]
 Type=simple
 User=qishi-note-vault
-Group=allusers
 WorkingDirectory=/usr/local/qishi-note-vault
 ExecStart=/usr/bin/python3 /usr/local/qishi-note-vault/bin/qishi-note-vault-service
 ExecStopPost=/bin/rm -f /var/api/qishi-note-vault.sock
