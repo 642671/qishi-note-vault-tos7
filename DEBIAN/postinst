@@ -13,6 +13,24 @@ APP_GROUP=""
 
 case "$1" in
     configure)
+        # Some manual/online installation paths do not create the platform
+        # user before dpkg runs. Create it as a fallback, but never replace an
+        # existing platform-managed user.
+        if ! getent passwd "${APP_USER}" >/dev/null 2>&1 \
+            && command -v useradd >/dev/null 2>&1; then
+            if getent group allusers >/dev/null 2>&1; then
+                useradd --system --no-create-home \
+                    --home-dir "${APP_DIR}" \
+                    --shell /usr/sbin/nologin \
+                    --gid allusers "${APP_USER}" 2>/dev/null || true
+            else
+                useradd --system --user-group --no-create-home \
+                    --home-dir "${APP_DIR}" \
+                    --shell /usr/sbin/nologin \
+                    "${APP_USER}" 2>/dev/null || true
+            fi
+        fi
+
         # TOS creates only the application user. Resolve its primary group
         # instead of requiring a same-named application group.
         if getent passwd "${APP_USER}" >/dev/null 2>&1; then
