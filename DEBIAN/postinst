@@ -10,18 +10,25 @@ UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
 
 case "$1" in
     configure)
-        # The platform creates APP_USER during installation. Do not create it here.
+        # TOS creates the app user with the shared primary group "allusers";
+        # it does not create a matching group named after the application.
         if getent passwd "${APP_USER}" >/dev/null 2>&1; then
-            chown -R "${APP_USER}:${APP_USER}" \
+            chown -R "${APP_USER}:allusers" \
                 "${APP_DIR}/data" "${APP_DIR}/logs" 2>/dev/null || true
             chmod 0750 "${APP_DIR}/data" "${APP_DIR}/logs" 2>/dev/null || true
         fi
 
-        mkdir -p /var/api
-        if getent passwd "${APP_USER}" >/dev/null 2>&1; then
-            chown "${APP_USER}:${APP_USER}" /var/api 2>/dev/null || true
+        # /var/api is shared by all iframe applications. Keep it owned by
+        # root:allusers with group write access so every app user can create
+        # its own socket without exposing the directory to unrelated users.
+        if [ -d /var/api ]; then
+            chown root:allusers /var/api 2>/dev/null || true
+            chmod 0770 /var/api 2>/dev/null || true
+        else
+            mkdir -p /var/api
+            chown root:allusers /var/api 2>/dev/null || true
+            chmod 0770 /var/api 2>/dev/null || true
         fi
-        chmod 0770 /var/api 2>/dev/null || true
 
         if [ -d /run/systemd/system ]; then
             ln -sf "${UNIT_SRC}" "${UNIT_DST}"

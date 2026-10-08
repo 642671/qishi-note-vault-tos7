@@ -91,9 +91,21 @@ class NoteVaultHandler(BaseHTTPRequestHandler):
     def _normalized_path(self) -> tuple[list[str], dict[str, list[str]]]:
         parsed = urlparse(self.path)
         path = unquote(parsed.path)
-        proxy_prefix = f"/v2/proxy/{APP_ID}"
-        if path.startswith(proxy_prefix):
-            path = path[len(proxy_prefix) :]
+        prefixes = (f"/v2/proxy/{APP_ID}", f"/{APP_ID}")
+        changed = True
+        while changed:
+            changed = False
+            for prefix in prefixes:
+                if path == prefix:
+                    path = ""
+                    changed = True
+                    break
+                if path.startswith(prefix + "/"):
+                    path = path[len(prefix) :]
+                    changed = True
+                    break
+        if path == "/api" or path.startswith("/api/"):
+            path = path[len("/api") :]
         segments = [part for part in path.split("/") if part]
         return segments, parse_qs(parsed.query)
 

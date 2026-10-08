@@ -141,6 +141,16 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(health["app"], "qishi-note-vault")
 
+        for path in (
+            "/health",
+            "/qishi-note-vault/health",
+            "/qishi-note-vault/api/health",
+            "/qishi-note-vault/v2/proxy/qishi-note-vault/health",
+        ):
+            status, health = self.request("GET", path)
+            self.assertEqual(status, 200, path)
+            self.assertEqual(health["app"], "qishi-note-vault")
+
         status, stats = self.request("GET", "/v2/proxy/qishi-note-vault/stats")
         self.assertEqual(status, 200)
         self.assertIn("total", stats["stats"])
