@@ -4,6 +4,7 @@ import http.client
 import json
 import tempfile
 import threading
+import time
 import unittest
 import sys
 from pathlib import Path
@@ -173,6 +174,33 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(downloaded, image)
         self.assertEqual(downloaded_type, "image/png")
+
+
+class ServerShutdownTests(unittest.TestCase):
+    def test_stop_runtime_has_bounded_wait(self) -> None:
+        class SlowServer:
+            def __init__(self) -> None:
+                self.closed = False
+
+            def shutdown(self) -> None:
+                time.sleep(0.3)
+
+            def server_close(self) -> None:
+                self.closed = True
+
+        class Worker:
+            def join(self, timeout: float | None = None) -> None:
+                if timeout:
+                    time.sleep(min(timeout, 0.01))
+
+        server_instance = SlowServer()
+        worker = Worker()
+        started = time.monotonic()
+        server.stop_server_runtime(server_instance, worker, timeout=0.05)
+        elapsed = time.monotonic() - started
+
+        self.assertTrue(server_instance.closed)
+        self.assertLess(elapsed, 0.25)
 
 
 if __name__ == "__main__":
