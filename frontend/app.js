@@ -121,6 +121,27 @@ function setServiceState(online) {
   byId("serviceBadge").className = "service-badge " + (online ? "is-online" : "is-offline");
 }
 
+var serviceNoticeDefaultReason = null;
+
+function setServiceNotice(visible, reason) {
+  var notice = byId("serviceNotice");
+  var text = byId("serviceNoticeReason");
+  if (!notice || !text) {
+    return;
+  }
+  if (serviceNoticeDefaultReason === null) {
+    serviceNoticeDefaultReason = text.textContent;
+  }
+  if (!visible) {
+    notice.hidden = true;
+    return;
+  }
+  text.textContent = reason
+    ? serviceNoticeDefaultReason + " 失败原因：" + reason
+    : serviceNoticeDefaultReason;
+  notice.hidden = false;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function (character) {
     return {
@@ -720,13 +741,25 @@ function bindEvents() {
 async function initialize() {
   initializeTheme();
   bindEvents();
+  await connectBackend();
+  byId("serviceNoticeRetry").addEventListener("click", function () {
+    setServiceNotice(false);
+    connectBackend().catch(toastError);
+  });
+}
+
+// One health probe drives both the badge and the recovery banner, so a service
+// that installed but never started explains itself instead of showing a blank UI.
+async function connectBackend() {
   try {
     var health = await apiRequest("/health");
     setServiceState(true);
+    setServiceNotice(false);
     console.info("Qishi Note Vault", health.version, "Python", health.python);
     await Promise.all([loadTags(), loadNotes()]);
   } catch (error) {
     setServiceState(false);
+    setServiceNotice(true, error && error.message ? error.message : String(error));
     toast("后端服务不可用", "error");
   }
 }

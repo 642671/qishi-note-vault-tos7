@@ -84,9 +84,40 @@ Python      3.10.12（/usr/bin/python3，符合指南 8.11 的系统 Python 假�
 14 语言字段非空、图标限制、LF 与无 BOM、unit 必需指令与两处刻意偏离、`postinst`/`prerm`/`postrm`
 行为。规范或实机结论若发生变化，测试会先失败，而不是等到装到 NAS 上才发现。
 
+`backend/tests/test_lifecycle_scripts.py` 是第 6 节那类故障的护栏，逐条检查三个生命周期脚本：
+POSIX sh 且不含 bash 专有语法、不使用 TOS 上不可用的命令、启动前置条件检查、
+`reset-failed` 必须早于 `start`、就绪轮询同时看 unit 与 socket、诊断文件路径与页面文案一致、
+停用必须确认后再清理、socket 清理必须可失败、`/var/api` 只创建不收紧。
+
 ```bash
 py -3 -m unittest discover -s backend/tests -v
 ```
 
 Windows 上的 `python` / `python3` 可能是 Microsoft Store 的转发存根（退出码 49、无输出），
 本项目统一用 `py -3`；在 NAS 或普通 Linux 上直接写 `python3` 即可。
+
+## 6. “安装成功但服务从未启动”这一类故障
+
+指南只要求 `postinst` 启动服务，没有要求证明它真的在服务。实机上最难自查的正是这一点：
+dpkg 返回 0、App Center 显示已启用，页面却什么都没有。以下每一条都在
+`10.18.15.136`（TOS 7 x86_64）上复现并验证过。
+
+| 症状 | 根因 | 现在的处理 |
+|---|---|---|
+| 安装“成功”，服务从未监听 | `systemctl start … \|\| true` 吞掉一切失败 | 启动前校验 unit、启动器、`/usr/bin/python3`；启动后轮询 `is-active` 与 `/var/api/<appid>.sock`（最长 25 秒） |
+| 失败后无从排查 | 安装日志只有一行 shell 输出 | 生成 `<APP_DIR>/logs/postinst-diagnostic.txt`：身份、前置条件清单、`systemctl is-active/status/cat`、最近 120 行 `journalctl`、socket 状态，并在日志输出 `ERROR` 与下一步命令 |
+| 修好也起不来 | 崩溃循环耗尽 `StartLimitBurst` 后，systemd 在 60 秒窗口内拒绝一切新启动请求 | `start` 之前执行 `systemctl reset-failed` |
+| 页面白屏且无提示 | 前端只把健康检查失败记成一个小圆点 | 后端不可用时显示恢复指引条：失败原因、应用中心停用/重新启用、本应用真实的 `systemctl status` 命令、诊断文件绝对路径，并提供“重试连接” |
+| App Center 显示已停用，进程与 socket 仍在 | `prerm` 用 `\|\| true` 假设停止成功 | 停止后轮询确认（最长 14 秒），仍存活则 `systemctl kill` 升级，再 `disable` |
+| 卸载/清出中途失败、残留单元文件 | `/var/api` 是 `1777` sticky，别人属主的 socket 无法 unlink，未保护的 `rm -f` 在 `set -e` 下中断脚本 | socket 清理一律允许失败并给出 `WARN` |
+| `webui.bz2` 损坏时包卡在半配置状态 | `set -e` 下解压失败直接退出 | 解压失败改为记录 `ERROR` 并提示 WebUI 可能是旧版本；每次 `configure` 仍重新解压 |
+| 生命周期脚本用了 TOS 上不存在的行为 | `/usr/bin/install` 是定制版，拒绝 `install -d` | 三个脚本只用 `mkdir -p` + `chmod`，并由测试禁止 `install -`、`realpath`、`cp -a` |
+
+`postinst` 在失败路径上仍然以 0 退出，这是刻意的：非零退出会把包留在“半配置”状态，
+用户既不能升级也不能卸载，只能手工 `dpkg --configure -a`。失败信息改由日志级别、
+诊断文件和页面提示条三层传递。
+
+`prerm` 的 SIGKILL 升级路径在正常配置下是二重保险：unit 的 `TimeoutStopSec=10` 早于
+`prerm` 的 14 秒轮询，systemd 自己会先完成强杀。实测用一个忽略 `SIGTERM` 的进程验证：
+`dpkg -r` 用时 12 秒，进程、socket、单元文件全部清除，`/var/api` 属主与模式保持
+`777 test:test` 未被改动。

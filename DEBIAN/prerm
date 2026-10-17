@@ -1,18 +1,44 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 APP_USER="qishi-note-vault"
 SYSTEM_ID="qishinotevault-system"
+SOCKET_PATH="/var/api/qishi-note-vault.sock"
 
 # App Center can invoke the lifecycle script with different Debian arguments.
 # Always request a service stop so "disable/stop" cannot leave the daemon running.
 if [ -d /run/systemd/system ]; then
+    # A bare "systemctl stop || true" lets a hung or restarting service survive
+    # removal: the UI says stopped, systemd still shows the process and the
+    # socket stays behind. Stop, confirm, then escalate instead of pretending.
     systemctl stop "${SYSTEM_ID}.service" 2>/dev/null || true
+
+    WAITED=0
+    while [ "${WAITED}" -lt 14 ]; do
+        if ! systemctl is-active --quiet "${SYSTEM_ID}.service"; then
+            break
+        fi
+        sleep 1
+        WAITED=$((WAITED + 1))
+    done
+
+    if systemctl is-active --quiet "${SYSTEM_ID}.service"; then
+        echo "[qishi-note-vault] WARN ${SYSTEM_ID}.service ignored SIGTERM, sending SIGKILL"
+        systemctl kill "${SYSTEM_ID}.service" 2>/dev/null || true
+        sleep 1
+    fi
+
     systemctl disable "${SYSTEM_ID}.service" 2>/dev/null || true
 fi
 
 # Clean up any process that remained after systemd timed out.
 pkill -u "${APP_USER}" 2>/dev/null || true
 sleep 1
+
+if [ -e "${SOCKET_PATH}" ] && ! rm -f "${SOCKET_PATH}" 2>/dev/null; then
+    # /var/api is 1777 sticky: a file owned by another user cannot be unlinked
+    # here. Report it instead of failing removal of an otherwise stopped app.
+    echo "[qishi-note-vault] WARN ${SOCKET_PATH} is owned by another user and was left in place"
+fi
 
 exit 0

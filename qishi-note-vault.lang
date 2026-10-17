@@ -2,96 +2,96 @@
 name = "启思笔记"
 auth = "qishiyi"
 descript = "私有 Markdown 知识库，支持标签、全文搜索、置顶、归档、回收站、附件、导入导出和备份。"
-release_note = "1.0.013：服务单元按 TOS 7 实机行为加固，崩溃后可自动恢复；安装脚本不再修改共享目录 /var/api 的权限。"
+release_note = "1.0.014：安装后若服务未能启动，页面会直接说明失败原因与排查步骤，安装脚本同时生成 postinst-diagnostic.txt 诊断记录；停用与卸载会确认进程真正退出，启动前自动清理已耗尽的 systemd 重启配额。"
 important = "笔记和附件保存在 NAS 应用数据目录中，请定期执行导出备份。"
 
 [zh-hk]
 name = "啟思筆記"
 auth = "qishiyi"
 descript = "私人 Markdown 知識庫，支援標籤、全文搜尋、置頂、封存、回收站、附件、匯入匯出和備份。"
-release_note = "1.0.013：服務單元按 TOS 7 實機行為加固，崩潰後可自動復原；安裝腳本不再修改共用目錄 /var/api 的權限。"
+release_note = "1.0.014：安裝後若服務未能啟動，頁面會直接說明失敗原因與排查步驟，安裝腳本同時生成 postinst-diagnostic.txt 診斷記錄；停用與解除安裝會確認程序真正結束，啟動前自動清理已耗盡的 systemd 重新啟動配額。"
 important = "筆記和附件保存在 NAS 應用資料目錄中，請定期執行匯出備份。"
 
 [en-us]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Private Markdown knowledge base with tags, full-text search, pin, archive, trash, attachments, import, export, and backup."
-release_note = "1.0.013: hardened the systemd unit against real TOS 7 behaviour and added automatic crash recovery; the installer no longer changes permissions on the shared /var/api directory."
+release_note = "1.0.014: if the service never starts after install, the page now states the reason and the fix steps and the installer writes postinst-diagnostic.txt; disable and uninstall verify the process really exits, and an exhausted systemd restart quota is cleared before starting."
 important = "Notes and attachments are stored in the NAS application data directory. Export backups regularly."
 
 [fr-fr]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de connaissances Markdown privee avec tags, recherche, epinglage, archive, corbeille, pieces jointes et sauvegarde."
-release_note = "1.0.013 : unité systemd durcie selon le comportement réel de TOS 7, avec reprise automatique après plantage ; l'installation ne modifie plus les permissions du dossier partagé /var/api."
+release_note = "1.0.014 : si le service ne démarre pas après l'installation, la page indique désormais le motif et les étapes de réparation, et l'installation écrit postinst-diagnostic.txt ; désactivation et désinstallation vérifient la vraie fin du processus et le quota de redémarrages systemd épuisé est remis à zéro avant le démarrage."
 important = "Les notes et pieces jointes sont stockees dans le dossier de donnees de l'application. Exportez regulierement une sauvegarde."
 
 [de-de]
 name = "Qishi Notiz-Tresor"
 auth = "qishiyi"
 descript = "Private Markdown-Wissensdatenbank mit Tags, Volltextsuche, Anpinnen, Archiv, Papierkorb, Anhangen und Backup."
-release_note = "1.0.013: Systemd-Unit gemäß dem tatsächlichen TOS 7-Verhalten gehärtet, mit automatischer Wiederherstellung nach Absturz; der Installer ändert die Berechtigungen des gemeinsamen Verzeichnisses /var/api nicht mehr."
+release_note = "1.0.014: Startet der Dienst nach der Installation nicht, nennt die Seite jetzt Grund und Schritte zur Behebung, und das Installationsskript schreibt postinst-diagnostic.txt; Deaktivieren und Deinstallieren prüfen das tatsächliche Beenden des Prozesses, vor dem Start wird ein erschöpftes systemd-Neustartkontingent zurückgesetzt."
 important = "Notizen und Anhange liegen im Datenverzeichnis der Anwendung. Erstellen Sie regelmaessig Export-Backups."
 
 [it-it]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base di conoscenza Markdown privata con tag, ricerca, fissaggio, archivio, cestino, allegati e backup."
-release_note = "1.0.013: unit systemd rafforzata secondo il comportamento reale di TOS 7, con recupero automatico dopo arresto anomalo; l'installazione non modifica più i permessi della cartella condivisa /var/api."
+release_note = "1.0.014: se il servizio non si avvia dopo l'installazione, la pagina ora indica motivo e passaggi di correzione e lo script di installazione scrive postinst-diagnostic.txt; disattivazione e disinstallazione verificano che il processo termini davvero e il quota di riavvii systemd esaurito viene azzerato prima dell'avvio."
 important = "Note e allegati sono salvati nella directory dati dell'applicazione. Esporta regolarmente un backup."
 
 [es-es]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de conocimiento Markdown privada con etiquetas, busqueda, fijados, archivo, papelera, adjuntos y copias."
-release_note = "1.0.013: unidad systemd endurecida según el comportamiento real de TOS 7, con recuperación automática tras fallos; la instalación ya no modifica los permisos del directorio compartido /var/api."
+release_note = "1.0.014: si el servicio no se inicia tras la instalación, la página ahora indica el motivo y los pasos de solución y el script de instalación genera postinst-diagnostic.txt; desactivar y desinstalar comprueban que el proceso finalice de verdad y se limpia el cupo agotado de reinicios de systemd antes de arrancar."
 important = "Las notas y adjuntos se guardan en el directorio de datos de la aplicacion. Exporta copias con regularidad."
 
 [hu-hu]
 name = "Qishi Jegyzettar"
 auth = "qishiyi"
 descript = "Privat Markdown tudasbazis cimkekkel, keresesel, kituzessel, archivummal, kukaval, mellékletekkel es mentessel."
-release_note = "1.0.013: a systemd egység a TOS 7 tényleges viselkedése szerint keményített, automatikus hibahelyreállítással; a telepítő többé nem módosítja a közös /var/api könyvtár jogosultságait."
+release_note = "1.0.014: ha a szolgáltatás a telepítés után nem indul el, a oldal most megadja az okot és a javítási lépéseket, a telepítő szkript pedig postinst-diagnostic.txt fájlt ír; a letiltás és az eltávolítás ellenőrzi, hogy a folyamat valóban véget ért-e, és indulás előtt törli a kimerült systemd újraindítási keretet."
 important = "A jegyzetek es mellékletek az alkalmazas adatkonyvtaraban tarolodnak. Rendszeresen exportaljon mentest."
 
 [ja-jp]
 name = "Qishi ノート保管庫"
 auth = "qishiyi"
 descript = "タグ、全文検索、固定、アーカイブ、ゴミ箱、添付、入出力、バックアップに対応したプライベート Markdown ナレッジベースです。"
-release_note = "1.0.013: systemd ユニットを実際の TOS 7 の挙動に合わせて強化し、クラッシュ後の自動復旧を追加しました。インストール時に共有ディレクトリ /var/api の権限を変更しなくなりました。"
+release_note = "1.0.014: インストール後にサービスが起動しない場合、ページが理由と対処手順を表示し、インストールスクリプトが postinst-diagnostic.txt を書き出します。無効化とアンインストールではプロセスが実際に終了したかを確認し、起動前に枯渇した systemd 再起動クレジットをリセットします。"
 important = "ノートと添付ファイルは NAS アプリのデータディレクトリに保存されます。定期的にエクスポートしてください。"
 
 [ko-kr]
 name = "Qishi 노트 보관함"
 auth = "qishiyi"
 descript = "태그, 전체 검색, 고정, 보관, 휴지통, 첨부, 가져오기, 내보내기 및 백업을 지원하는 개인 Markdown 지식 베이스입니다."
-release_note = "1.0.013: systemd 유닛을 실제 TOS 7 동작에 맞게 강화하고 충돌 후 자동 복구를 추가했습니다. 설치 중에 공유 디렉터리 /var/api의 권한을 더 이상 변경하지 않습니다."
+release_note = "1.0.014: 설치 후 서비스가 시작되지 않으면 페이지가 원인과 조치 단계를 표시하고 설치 스크립트가 postinst-diagnostic.txt를 작성합니다. 비활성화와 제거 시 프로세스가 실제로 종료됐는지 확인하며, 시작 전에 소진된 systemd 재시작 횟수를 초기화합니다."
 important = "노트와 첨부 파일은 NAS 애플리케이션 데이터 디렉터리에 저장됩니다. 정기적으로 백업을 내보내세요."
 
 [pl-pl]
 name = "Qishi Skarbiec Notatek"
 auth = "qishiyi"
 descript = "Prywatna baza wiedzy Markdown z tagami, wyszukiwaniem, przypinaniem, archiwum, koszem, zalacznikami i kopiami."
-release_note = "1.0.013: jednostka systemd wzmocniona zgodnie z rzeczywistym zachowaniem TOS 7, z automatycznym przywracaniem po awarii; instalator nie zmienia już uprawnień wspólnego katalogu /var/api."
+release_note = "1.0.014: jeśli usługa nie uruchomi się po instalacji, strona podaje teraz przyczynę i kroki naprawy, a skrypt instalacyjny zapisuje postinst-diagnostic.txt; wyłączenie i odinstalowanie sprawdzają, czy proces faktycznie się zakończył, a przed startem czyszczony jest wyczerpany limit ponownych uruchomień systemd."
 important = "Notatki i zalaczniki sa przechowywane w katalogu danych aplikacji. Regularnie eksportuj kopie zapasowa."
 
 [ru-ru]
 name = "Qishi Khranilishche zametok"
 auth = "qishiyi"
 descript = "Chastnaya baza znanij Markdown s tegami, poiskom, zakrepeleniem, arhivom, korzinoj, vlozheniyami i rezervnymi kopiyami."
-release_note = "1.0.013: юнит systemd усилен с учётом реального поведения TOS 7, добавлено автоматическое восстановление после сбоя; установщик больше не изменяет права общего каталога /var/api."
+release_note = "1.0.014: если служба не запустилась после установки, страница теперь указывает причину и шаги устранения, а установщик создаёт postinst-diagnostic.txt; отключение и удаление проверяют, что процесс действительно завершился, а перед запуском сбрасывается исчерпанный лимит перезапусков systemd."
 important = "Zametki i vlozheniya hranyatsya v kataloge dannyh prilozheniya. Regulyarno eksportirujte rezervnuyu kopiyu."
 
 [tr-tr]
 name = "Qishi Not Kasasi"
 auth = "qishiyi"
 descript = "Etiketler, arama, sabitleme, arsiv, cop kutusu, ekler, ice/disa aktarma ve yedekleme ozellikli ozel Markdown bilgi tabani."
-release_note = "1.0.013: systemd birimi gerçek TOS 7 davranışına göre sağlamlaştırıldı ve çökmeden otomatik kurtarma eklendi; kurulum artık paylaşılan /var/api dizininin izinlerini değiştirmiyor."
+release_note = "1.0.014: hizmet kurulumdan sonra başlatılamazsa sayfa artık nedeni ve onarım adımlarını gösterir, kurulum betiği postinst-diagnostic.txt yazar; devre dışı bırakma ve kaldırma işleminde sürecin gerçekten sona erdiği doğrulanır ve başlatmadan önce tükenen systemd yeniden başlatma kotası sıfırlanır."
 important = "Notlar ve ekler NAS uygulama veri dizininde saklanir. Duzenli olarak yedek disa aktarin."
 
 [pt-pt]
 name = "Qishi Cofre de Notas"
 auth = "qishiyi"
 descript = "Base de conhecimento Markdown privada com etiquetas, pesquisa, fixacao, arquivo, lixo, anexos, importacao, exportacao e copia."
-release_note = "1.0.013: unidade systemd reforçada conforme o comportamento real do TOS 7, com recuperação automática após falha; a instalação já não altera as permissões da pasta partilhada /var/api."
+release_note = "1.0.014: se o serviço não arrancar após a instalação, a página indica agora o motivo e os passos de correção e o script de instalação escreve postinst-diagnostic.txt; desativar e desinstalar verificam se o processo terminou realmente e a quota de reinícios do systemd esgotada é limpa antes do arranque."
 important = "As notas e anexos ficam no diretorio de dados da aplicacao. Exporte copias de seguranca regularmente."

@@ -822,6 +822,65 @@ h2 {
   opacity: 1;
 }
 
+/* Anchored above the bottom edge so it never collides with the top-centred
+   toast, and kept inside the window so the 20x20 host resize corner stays free. */
+.service-notice {
+  position: fixed;
+  top: auto;
+  left: 50%;
+  right: auto;
+  bottom: calc(var(--window-safe-bottom) + 18px);
+  z-index: 130;
+  display: grid;
+  gap: 10px;
+  width: min(520px, calc(100% - 48px));
+  padding: 14px 16px;
+  transform: translateX(-50%);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.service-notice[hidden] {
+  display: none;
+}
+
+.service-notice strong {
+  font-size: 14px;
+}
+
+.service-notice-body p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.service-notice ol {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.service-notice code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 11px;
+  word-break: break-all;
+}
+
+html[data-theme="dark"] .service-notice code {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.service-notice .secondary-button {
+  justify-self: start;
+}
+
 .toast.toast-error {
   background: var(--danger);
 }

@@ -7,7 +7,11 @@ SYSTEM_ID="qishinotevault-system"
 UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
 
 rm -f "${UNIT_DST}"
-rm -f "/var/api/${APP_ID}.sock"
+# /var/api is a 1777 sticky directory on TOS 7. A socket left there by a crashed
+# run can be owned by another uid, and unlinking it as a non-owner fails with
+# EPERM. "rm -f" only hides missing files, not permission errors, so an unguarded
+# call would abort purge under set -e and strand the unit file behind it.
+rm -f "/var/api/${APP_ID}.sock" 2>/dev/null || true
 
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload || true

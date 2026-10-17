@@ -9,7 +9,56 @@ WEBUI_ARCHIVE="${APP_DIR}/webui.bz2"
 WEBUI_DIR="${APP_DIR}/webui"
 UNIT_SRC="${APP_DIR}/init.d/${SYSTEM_ID}.service"
 UNIT_DST="/etc/systemd/system/${SYSTEM_ID}.service"
+LAUNCHER="${APP_DIR}/bin/${APP_ID}-service"
+SOCKET_PATH="/var/api/${APP_ID}.sock"
+LOG_DIR="${APP_DIR}/logs"
+DIAG_FILE="${LOG_DIR}/postinst-diagnostic.txt"
 APP_GROUP=""
+
+# Install logs are the only feedback App Center shows for a failed package, so
+# every line is prefixed with a level the TOS log viewer can filter on.
+log() {
+    printf '[qishi-note-vault] %s %s\n' "$1" "$2"
+}
+
+# Writes the evidence an operator needs to fix a service that installed but did
+# not start, then reports where it went. Never fails the script: a missing
+# diagnostic must not turn a recoverable warning into a half-configured package.
+collect_diagnostics() {
+    reason="$1"
+    mkdir -p "${LOG_DIR}" 2>/dev/null || true
+    {
+        echo "reason: ${reason}"
+        echo "app: ${APP_ID}"
+        echo "systemd unit: ${SYSTEM_ID}.service"
+        echo ""
+        echo "=== identity ==="
+        id "${APP_USER}" 2>&1 || echo "user ${APP_USER} does not exist (217/USER)"
+        echo ""
+        echo "=== runtime prerequisites ==="
+        ls -l /usr/bin/python3 2>&1 || echo "/usr/bin/python3 missing (203/EXEC)"
+        ls -l "${LAUNCHER}" 2>&1 || echo "${LAUNCHER} missing (203/EXEC)"
+        ls -l "${UNIT_SRC}" 2>&1 || echo "${UNIT_SRC} missing"
+        echo ""
+        echo "=== unit state ==="
+        systemctl is-active "${SYSTEM_ID}.service" 2>&1 || true
+        systemctl status --no-pager -l "${SYSTEM_ID}.service" 2>&1 || true
+        systemctl cat --no-pager "${SYSTEM_ID}.service" 2>&1 || true
+        echo ""
+        echo "=== recent service logs ==="
+        journalctl --no-pager -n 120 -u "${SYSTEM_ID}.service" 2>&1 \
+            || echo "journalctl unavailable, check ${LOG_DIR}"
+        echo ""
+        echo "=== socket ==="
+        ls -l "${SOCKET_PATH}" 2>&1 || echo "${SOCKET_PATH} absent"
+        ls -ld /var/api 2>&1 || true
+    } > "${DIAG_FILE}" 2>&1 || true
+    chown "${APP_USER}:${APP_GROUP}" "${DIAG_FILE}" 2>/dev/null || true
+    chmod 0640 "${DIAG_FILE}" 2>/dev/null || true
+    log ERROR "${reason}"
+    log ERROR "Diagnostics saved to ${DIAG_FILE}"
+    log ERROR "Next step: systemctl status ${SYSTEM_ID}.service"
+}
 
 case "$1" in
     configure)
@@ -44,12 +93,17 @@ case "$1" in
 
         # TOS keeps the first extracted webui directory across upgrades.
         # Re-extract the current archive on every configure so UI changes
-        # are actually served after package upgrades.
+        # are actually served after package upgrades. A failed extraction must
+        # not abort configure: that would leave the package half-configured and
+        # hide the real cause (a corrupt archive) behind a dpkg error.
         if [ -f "${WEBUI_ARCHIVE}" ] && command -v tar >/dev/null 2>&1; then
             mkdir -p "${WEBUI_DIR}"
-            tar -xjf "${WEBUI_ARCHIVE}" -C "${WEBUI_DIR}"
-            chown -R root:root "${WEBUI_DIR}" 2>/dev/null || true
-            chmod -R a+rX "${WEBUI_DIR}" 2>/dev/null || true
+            if tar -xjf "${WEBUI_ARCHIVE}" -C "${WEBUI_DIR}" 2>&1; then
+                chown -R root:root "${WEBUI_DIR}" 2>/dev/null || true
+                chmod -R a+rX "${WEBUI_DIR}" 2>/dev/null || true
+            else
+                log ERROR "${WEBUI_ARCHIVE} could not be extracted; the WebUI may be stale"
+            fi
         fi
 
         # /var/api is a platform-owned shared directory. On TOS 7 it is a symlink
@@ -65,10 +119,47 @@ case "$1" in
         fi
 
         if [ -d /run/systemd/system ]; then
-            ln -sf "${UNIT_SRC}" "${UNIT_DST}"
-            systemctl daemon-reload || true
-            systemctl enable "${SYSTEM_ID}.service" || true
-            systemctl start "${SYSTEM_ID}.service" || true
+            # Check the start prerequisites first. Linking a unit whose file or
+            # interpreter is absent produces a service that dpkg reports as
+            # installed and App Center shows as enabled, while systemd records
+            # 203/EXEC on every start attempt.
+            MISSING=""
+            [ -f "${UNIT_SRC}" ] || MISSING="${MISSING} ${UNIT_SRC}"
+            [ -x "${LAUNCHER}" ] || MISSING="${MISSING} ${LAUNCHER}"
+            [ -x /usr/bin/python3 ] || MISSING="${MISSING} /usr/bin/python3"
+            if [ -n "${MISSING}" ]; then
+                collect_diagnostics "cannot start: missing${MISSING}"
+            else
+                ln -sf "${UNIT_SRC}" "${UNIT_DST}"
+                systemctl daemon-reload || true
+                systemctl enable "${SYSTEM_ID}.service" || true
+                # Clear the counter a previous broken version may have burned.
+                # Without this, a unit that already hit StartLimitBurst refuses
+                # every new start and the app looks permanently un-startable.
+                systemctl reset-failed "${SYSTEM_ID}.service" 2>/dev/null || true
+                systemctl start "${SYSTEM_ID}.service" || true
+
+                # dpkg reporting 0 is not proof the service runs. Wait for the
+                # socket the backend binds, then confirm the unit is active;
+                # otherwise publish the evidence instead of a false success.
+                WAITED=0
+                while [ "${WAITED}" -lt 25 ]; do
+                    if [ -S "${SOCKET_PATH}" ] \
+                        && systemctl is-active --quiet "${SYSTEM_ID}.service"; then
+                        break
+                    fi
+                    sleep 1
+                    WAITED=$((WAITED + 1))
+                done
+
+                if systemctl is-active --quiet "${SYSTEM_ID}.service" \
+                    && [ -S "${SOCKET_PATH}" ]; then
+                    log INFO "service active, socket ready after ${WAITED}s"
+                else
+                    collect_diagnostics \
+                        "installed but not serving: ${SYSTEM_ID}.service did not become active with ${SOCKET_PATH} within 25s"
+                fi
+            fi
         fi
         ;;
 esac

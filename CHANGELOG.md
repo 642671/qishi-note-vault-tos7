@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.0.014 - 2026-10-17
+
+- 解决“安装成功但服务从未启动”这类最难自查的问题：`postinst` 不再只执行一次
+  `systemctl start … || true` 就宣布安装完成，而是先校验启动前置条件
+  （unit 文件、`bin/qishi-note-vault-service` 启动器、`/usr/bin/python3`），再轮询
+  `systemctl is-active` 与 `/var/api/qishi-note-vault.sock` 是否真正就绪（最长 25 秒）。
+- 前置条件缺失或 25 秒内未就绪时，`postinst` 生成
+  `/usr/local/qishi-note-vault/logs/postinst-diagnostic.txt`：包含应用用户身份、启动前置条件清单、
+  `systemctl is-active/status/cat` 输出、最近 120 行 `journalctl` 与 socket 状态，
+  同时在安装日志输出 `ERROR` 级消息和下一步命令。脚本仍以 0 退出，避免把包留在
+  “半配置”状态而无法卸载或升级。
+- `postinst` 在启动前执行 `systemctl reset-failed`：上一版本崩溃循环耗尽 `StartLimitBurst`
+  之后，systemd 会拒绝后续所有启动请求，现象正是“重装也起不来”。
+- `webui.bz2` 解压失败不再中断 `configure`（此前 `set -e` 会把包停在半配置状态，
+  并把真正原因——损坏的压缩包——藏在 dpkg 报错之后），改为记录 `ERROR` 并提示
+  WebUI 可能仍是旧版本；每次 `configure` 仍重新解压，避免升级后继续服务旧前端。
+- `prerm` 由“`systemctl stop/disable … || true`”改为可验证停用：停止后轮询确认进程真的
+  退出（最长 14 秒），仍存活则升级 `systemctl kill` 发送 SIGKILL，再 `disable`。
+  解决 App Center 显示已停用、但守护进程与 socket 仍然存在（Codex 记录的未完成项）。
+- `prerm`/`postrm` 的 socket 清理加失败保护：`/var/api` 实机是 `1777` sticky 目录，
+  别人属主的 socket 无法 unlink，未保护的 `rm -f` 会在 `set -e` 下中断脚本，
+  使其后的 `disable`、`daemon-reload`、`userdel` 永不执行。
+- `prerm` 的 shebang 由 `#!/bin/bash` 改为 `#!/bin/sh`，与 dpkg 实际调用的 shell 一致；
+  三个生命周期脚本统一复核为 POSIX sh，不使用 `install -d`（TOS 自带的
+  `/usr/bin/install` 会拒绝该用法）、`realpath`、`cp -a`。
+- 前端新增“后端服务未运行”恢复指引：健康检查失败时展示具体失败原因、应用中心
+  停用/重新启用步骤、本应用真实的 `systemctl status qishinotevault-system.service` 命令与诊断文件
+  绝对路径，并提供“重试连接”按钮；重新连通后自动收起。指引条不占用顶部 56px
+  标题栏，也不覆盖右下角 20×20 窗口缩放安全区。
+- 新增 `backend/tests/test_lifecycle_scripts.py`，把上述实机结论固化为回归断言：
+  POSIX sh 与禁用 bash 语法、禁用 TOS 上不可用的命令、启动前置条件检查、
+  `reset-failed` 必须先于 `start`、就绪轮询同时看 unit 与 socket、诊断文件路径与页面文案
+  一致、停用必须确认并升级、socket 清理必须可失败、`/var/api` 只创建不收紧。
+- 14 种语言的 `release_note` 更新至本版本。
+
 ## 1.0.013 - 2026-10-17
 
 - systemd 单元按官方 v2.7 规范与 TOS 7 实机行为重新校准：`TimeoutStopSec` 5 → 10（规范 8.12 必需值），
