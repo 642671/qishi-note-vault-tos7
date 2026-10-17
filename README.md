@@ -1,6 +1,6 @@
 # Qishi Note Vault for TOS 7
 
-`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.012`。
+`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.013`。
 
 应用使用 WebUI 内部打开模式，前端通过 TOS 平台代理访问本地 Python 服务：
 
@@ -54,7 +54,8 @@ qishi-note-vault-tos7/
 ├── docs/
 │   ├── API.md
 │   ├── BUILD_AND_RELEASE_GUIDE_CN.md
-│   └── PROJECT_LAYOUT.md
+│   ├── PROJECT_LAYOUT.md
+│   └── TOS7_SPEC_COMPLIANCE_CN.md
 ├── config.ini
 ├── qishi-note-vault.lang
 ├── qishi-note-vault.env
@@ -90,6 +91,9 @@ py -3 -m unittest discover -s backend/tests -v
 
 完整的版本修改、测试、打包、GitHub 发布和 TOS 安装步骤见 [测试、打包与发布详细指南](docs/BUILD_AND_RELEASE_GUIDE_CN.md)。
 
+对官方规范的逐条符合性、在真实 TOS 7 上的实测证据，以及三处刻意的规范偏离，
+见 [TOS 7 规范符合性说明](docs/TOS7_SPEC_COMPLIANCE_CN.md)。
+
 构建脚本只使用 Python 标准库，不要求本机安装 `dpkg-deb`。
 
 ```bash
@@ -97,11 +101,13 @@ python build.py --platform x86_64
 python build.py --platform aarch64
 ```
 
+Windows 上没有可用的 `python` 命令时，改用 `py -3 build.py --platform x86_64`。
+
 生成文件：
 
 ```text
-dist/qishi-note-vault_1.0.012_x86_64.deb
-dist/qishi-note-vault_1.0.012_x86_64.deb.sha256
+dist/qishi-note-vault_1.0.013_x86_64.deb
+dist/qishi-note-vault_1.0.013_x86_64.deb.sha256
 ```
 
 构建脚本会自动检查：
@@ -131,12 +137,17 @@ dist/qishi-note-vault_1.0.012_x86_64.deb.sha256
 1. `VERSION`
 2. `config.ini` 的 `version`
 3. `DEBIAN/control` 的 `Version`
-4. `CHANGELOG.md`
+4. `backend/qishi_note_vault/__init__.py` 的 `__version__`
+5. `frontend/index.html` 的 `styles.css?v=` 与 `app.js?v=`
+6. `qishi-note-vault.lang` 中 14 种语言的 `release_note`
+7. `CHANGELOG.md`
+
+前五项由 `backend/tests/test_package_contract.py` 检查是否一致，漏改任何一处测试就会失败。
 
 发布标签格式：
 
 ```bash
-git tag v1.0.012
+git tag v1.0.013
 git push origin main --tags
 ```
 

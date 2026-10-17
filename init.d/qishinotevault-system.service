@@ -6,18 +6,32 @@ StartLimitIntervalSec=60
 
 [Service]
 Type=simple
+# Spec 8.12 lists Group= as required, but TOS 7 creates the application user with
+# primary group "allusers" and never creates a same-named group. Declaring
+# Group=qishi-note-vault makes systemd fail before ExecStart with
+# status=216/GROUP ("Failed to determine group credentials"), and forcing another
+# group would also drop the allusers membership that shared-folder read access
+# relies on. The directive is therefore deliberately omitted so systemd uses the
+# user's real primary group.
 User=qishi-note-vault
 WorkingDirectory=/usr/local/qishi-note-vault
 ExecStart=/usr/bin/python3 /usr/local/qishi-note-vault/bin/qishi-note-vault-service
-ExecStopPost=/bin/rm -f /var/api/qishi-note-vault.sock
+# The leading "-" makes the cleanup optional. /var/api is a shared 1777 sticky
+# directory, so if a foreign-owned file occupies the socket path, /bin/rm returns
+# EPERM and systemd would mark an otherwise clean stop as
+# "Control process exited, status=1/FAILURE" -> App Center reports 停用失败.
+ExecStopPost=-/bin/rm -f /var/api/qishi-note-vault.sock
 EnvironmentFile=-/usr/local/qishi-note-vault/qishi-note-vault.env
 TimeoutStartSec=30
-TimeoutStopSec=5
+TimeoutStopSec=10
 KillMode=control-group
 KillSignal=SIGTERM
 SendSIGKILL=yes
 
-# Security hardening
+# Security hardening exactly as spec 8.12 requires. Verified on TOS 7 (Ubuntu 22.04
+# base, systemd 249, kernel 6.12) with a dedicated non-root user: every directive
+# below is accepted, the service reaches "active/running" and /var/api/<id>.sock
+# answers /health.
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
@@ -31,12 +45,22 @@ LockPersonality=true
 MemoryDenyWriteExecute=true
 RestrictAddressFamilies=AF_UNIX
 
+# PrivateTmp=true is deliberately NOT used. On TOS 7 /var/api is a symlink to
+# /tmp/api, and a private /tmp namespace breaks it with status=226/NAMESPACE
+# ("Failed to set up mount namespacing: /run/systemd/unit-root/tmp/api").
+# /var/api is added to ReadWritePaths because the spec template only lists data
+# and logs, while an iframe app must bind /var/api/<appid>.sock under
+# ProtectSystem=strict.
 ReadWritePaths=/usr/local/qishi-note-vault/data /usr/local/qishi-note-vault/logs /var/api
 LimitNOFILE=65536
 LimitNPROC=256
 MemoryMax=256M
 CPUQuota=50%
-Restart=no
+# Spec 8.7.1: the App Center honours the developer's restart policy, so a crashed
+# service recovers on its own. A graceful stop exits 0, which on-failure never
+# restarts, so "systemctl stop" and App Center 停用 still keep the service down.
+Restart=on-failure
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target

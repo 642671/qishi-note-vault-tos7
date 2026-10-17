@@ -348,12 +348,36 @@ class ThreadedUnixHTTPServer(socketserver.ThreadingMixIn, UnixServerBase):
     request_queue_size = 100
 
 
+def _remove_stale_socket() -> None:
+    """Clear a leftover socket file so bind() can succeed on this start.
+
+    Guide 12.9 expects the service to remove a stale ``/var/api/<appid>.sock``
+    before binding. ``/var/api`` is a shared directory with mode 1777 and the
+    sticky bit, so an app user can only unlink entries it owns. A socket left
+    behind by another account therefore cannot be cleared here, and bind() would
+    fail with ``EADDRINUSE``. Report that as an actionable message instead of a
+    bare PermissionError traceback.
+
+    ``lexists`` is used on purpose: ``os.path.exists()`` reports a dangling
+    symlink as absent, which would skip the unlink and break bind().
+    """
+    os.makedirs(SOCKET_DIR, exist_ok=True)
+    if not os.path.lexists(SOCKET_PATH):
+        return
+    try:
+        os.unlink(SOCKET_PATH)
+    except OSError as exc:
+        raise RuntimeError(
+            f"{SOCKET_PATH} exists but cannot be removed ({exc.strerror}). "
+            "/var/api is sticky, so only its owner or root can clear the stale "
+            "socket; remove it and start the service again."
+        ) from exc
+
+
 def create_server() -> ThreadedUnixHTTPServer:
     if not hasattr(socketserver, "UnixStreamServer"):
         raise RuntimeError("Unix sockets are required to run the production service")
-    os.makedirs(SOCKET_DIR, exist_ok=True)
-    if os.path.exists(SOCKET_PATH):
-        os.unlink(SOCKET_PATH)
+    _remove_stale_socket()
     server = ThreadedUnixHTTPServer(SOCKET_PATH, NoteVaultHandler)
     os.chmod(SOCKET_PATH, 0o660)
     return server
@@ -378,7 +402,13 @@ def stop_server_runtime(
 
 def main() -> int:
     configure_service()
-    server = create_server()
+    try:
+        server = create_server()
+    except RuntimeError as exc:
+        # systemd keeps the message and exits with a plain status instead of
+        # dumping a traceback into the journal for a known startup conflict.
+        log("ERROR", str(exc))
+        return 1
     stop_event = threading.Event()
 
     def request_stop(signum: int, frame: Any) -> None:
@@ -400,7 +430,7 @@ def main() -> int:
             log("ERROR", f"Service cleanup failed: {exc}")
         finally:
             try:
-                if os.path.exists(SOCKET_PATH):
+                if os.path.lexists(SOCKET_PATH):
                     os.unlink(SOCKET_PATH)
             except OSError as exc:  # pragma: no cover - defensive stop cleanup
                 log("WARN", f"Unable to remove socket {SOCKET_PATH}: {exc}")

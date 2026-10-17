@@ -2,96 +2,96 @@
 name = "启思笔记"
 auth = "qishiyi"
 descript = "私有 Markdown 知识库，支持标签、全文搜索、置顶、归档、回收站、附件、导入导出和备份。"
-release_note = "首个版本：本地 Markdown 笔记、标签、搜索、附件及备份功能。"
+release_note = "1.0.013：服务单元按 TOS 7 实机行为加固，崩溃后可自动恢复；安装脚本不再修改共享目录 /var/api 的权限。"
 important = "笔记和附件保存在 NAS 应用数据目录中，请定期执行导出备份。"
 
 [zh-hk]
 name = "啟思筆記"
 auth = "qishiyi"
 descript = "私人 Markdown 知識庫，支援標籤、全文搜尋、置頂、封存、回收站、附件、匯入匯出和備份。"
-release_note = "首個版本：本機 Markdown 筆記、標籤、搜尋、附件及備份功能。"
+release_note = "1.0.013：服務單元按 TOS 7 實機行為加固，崩潰後可自動復原；安裝腳本不再修改共用目錄 /var/api 的權限。"
 important = "筆記和附件保存在 NAS 應用資料目錄中，請定期執行匯出備份。"
 
 [en-us]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Private Markdown knowledge base with tags, full-text search, pin, archive, trash, attachments, import, export, and backup."
-release_note = "Initial release with local Markdown notes, tags, search, attachments, and backup support."
+release_note = "1.0.013: hardened the systemd unit against real TOS 7 behaviour and added automatic crash recovery; the installer no longer changes permissions on the shared /var/api directory."
 important = "Notes and attachments are stored in the NAS application data directory. Export backups regularly."
 
 [fr-fr]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de connaissances Markdown privee avec tags, recherche, epinglage, archive, corbeille, pieces jointes et sauvegarde."
-release_note = "Premiere version avec notes Markdown locales, tags, recherche, pieces jointes et sauvegarde."
+release_note = "1.0.013 : unité systemd durcie selon le comportement réel de TOS 7, avec reprise automatique après plantage ; l'installation ne modifie plus les permissions du dossier partagé /var/api."
 important = "Les notes et pieces jointes sont stockees dans le dossier de donnees de l'application. Exportez regulierement une sauvegarde."
 
 [de-de]
 name = "Qishi Notiz-Tresor"
 auth = "qishiyi"
 descript = "Private Markdown-Wissensdatenbank mit Tags, Volltextsuche, Anpinnen, Archiv, Papierkorb, Anhangen und Backup."
-release_note = "Erste Version mit lokalen Markdown-Notizen, Tags, Suche, Anhangen und Backup."
+release_note = "1.0.013: Systemd-Unit gemäß dem tatsächlichen TOS 7-Verhalten gehärtet, mit automatischer Wiederherstellung nach Absturz; der Installer ändert die Berechtigungen des gemeinsamen Verzeichnisses /var/api nicht mehr."
 important = "Notizen und Anhange liegen im Datenverzeichnis der Anwendung. Erstellen Sie regelmaessig Export-Backups."
 
 [it-it]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base di conoscenza Markdown privata con tag, ricerca, fissaggio, archivio, cestino, allegati e backup."
-release_note = "Prima versione con note Markdown locali, tag, ricerca, allegati e backup."
+release_note = "1.0.013: unit systemd rafforzata secondo il comportamento reale di TOS 7, con recupero automatico dopo arresto anomalo; l'installazione non modifica più i permessi della cartella condivisa /var/api."
 important = "Note e allegati sono salvati nella directory dati dell'applicazione. Esporta regolarmente un backup."
 
 [es-es]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de conocimiento Markdown privada con etiquetas, busqueda, fijados, archivo, papelera, adjuntos y copias."
-release_note = "Primera version con notas Markdown locales, etiquetas, busqueda, adjuntos y copias."
+release_note = "1.0.013: unidad systemd endurecida según el comportamiento real de TOS 7, con recuperación automática tras fallos; la instalación ya no modifica los permisos del directorio compartido /var/api."
 important = "Las notas y adjuntos se guardan en el directorio de datos de la aplicacion. Exporta copias con regularidad."
 
 [hu-hu]
 name = "Qishi Jegyzettar"
 auth = "qishiyi"
 descript = "Privat Markdown tudasbazis cimkekkel, keresesel, kituzessel, archivummal, kukaval, mellékletekkel es mentessel."
-release_note = "Elso verzio helyi Markdown jegyzetekkel, cimkekkel, keresesel, mellékletekkel es mentessel."
+release_note = "1.0.013: a systemd egység a TOS 7 tényleges viselkedése szerint keményített, automatikus hibahelyreállítással; a telepítő többé nem módosítja a közös /var/api könyvtár jogosultságait."
 important = "A jegyzetek es mellékletek az alkalmazas adatkonyvtaraban tarolodnak. Rendszeresen exportaljon mentest."
 
 [ja-jp]
 name = "Qishi ノート保管庫"
 auth = "qishiyi"
 descript = "タグ、全文検索、固定、アーカイブ、ゴミ箱、添付、入出力、バックアップに対応したプライベート Markdown ナレッジベースです。"
-release_note = "初回版：ローカル Markdown ノート、タグ、検索、添付、バックアップ機能。"
+release_note = "1.0.013: systemd ユニットを実際の TOS 7 の挙動に合わせて強化し、クラッシュ後の自動復旧を追加しました。インストール時に共有ディレクトリ /var/api の権限を変更しなくなりました。"
 important = "ノートと添付ファイルは NAS アプリのデータディレクトリに保存されます。定期的にエクスポートしてください。"
 
 [ko-kr]
 name = "Qishi 노트 보관함"
 auth = "qishiyi"
 descript = "태그, 전체 검색, 고정, 보관, 휴지통, 첨부, 가져오기, 내보내기 및 백업을 지원하는 개인 Markdown 지식 베이스입니다."
-release_note = "첫 버전: 로컬 Markdown 노트, 태그, 검색, 첨부 및 백업 기능."
+release_note = "1.0.013: systemd 유닛을 실제 TOS 7 동작에 맞게 강화하고 충돌 후 자동 복구를 추가했습니다. 설치 중에 공유 디렉터리 /var/api의 권한을 더 이상 변경하지 않습니다."
 important = "노트와 첨부 파일은 NAS 애플리케이션 데이터 디렉터리에 저장됩니다. 정기적으로 백업을 내보내세요."
 
 [pl-pl]
 name = "Qishi Skarbiec Notatek"
 auth = "qishiyi"
 descript = "Prywatna baza wiedzy Markdown z tagami, wyszukiwaniem, przypinaniem, archiwum, koszem, zalacznikami i kopiami."
-release_note = "Pierwsza wersja z lokalnymi notatkami Markdown, tagami, wyszukiwaniem, zalacznikami i kopiami."
+release_note = "1.0.013: jednostka systemd wzmocniona zgodnie z rzeczywistym zachowaniem TOS 7, z automatycznym przywracaniem po awarii; instalator nie zmienia już uprawnień wspólnego katalogu /var/api."
 important = "Notatki i zalaczniki sa przechowywane w katalogu danych aplikacji. Regularnie eksportuj kopie zapasowa."
 
 [ru-ru]
 name = "Qishi Khranilishche zametok"
 auth = "qishiyi"
 descript = "Chastnaya baza znanij Markdown s tegami, poiskom, zakrepeleniem, arhivom, korzinoj, vlozheniyami i rezervnymi kopiyami."
-release_note = "Pervaya versiya s lokalnymi zametkami Markdown, tegami, poiskom, vlozheniyami i rezervnymi kopiyami."
+release_note = "1.0.013: юнит systemd усилен с учётом реального поведения TOS 7, добавлено автоматическое восстановление после сбоя; установщик больше не изменяет права общего каталога /var/api."
 important = "Zametki i vlozheniya hranyatsya v kataloge dannyh prilozheniya. Regulyarno eksportirujte rezervnuyu kopiyu."
 
 [tr-tr]
 name = "Qishi Not Kasasi"
 auth = "qishiyi"
 descript = "Etiketler, arama, sabitleme, arsiv, cop kutusu, ekler, ice/disa aktarma ve yedekleme ozellikli ozel Markdown bilgi tabani."
-release_note = "Ilk surum: yerel Markdown notlari, etiketler, arama, ekler ve yedekleme."
+release_note = "1.0.013: systemd birimi gerçek TOS 7 davranışına göre sağlamlaştırıldı ve çökmeden otomatik kurtarma eklendi; kurulum artık paylaşılan /var/api dizininin izinlerini değiştirmiyor."
 important = "Notlar ve ekler NAS uygulama veri dizininde saklanir. Duzenli olarak yedek disa aktarin."
 
 [pt-pt]
 name = "Qishi Cofre de Notas"
 auth = "qishiyi"
 descript = "Base de conhecimento Markdown privada com etiquetas, pesquisa, fixacao, arquivo, lixo, anexos, importacao, exportacao e copia."
-release_note = "Primeira versao com notas Markdown locais, etiquetas, pesquisa, anexos e copia de seguranca."
+release_note = "1.0.013: unidade systemd reforçada conforme o comportamento real do TOS 7, com recuperação automática após falha; a instalação já não altera as permissões da pasta partilhada /var/api."
 important = "As notas e anexos ficam no diretorio de dados da aplicacao. Exporte copias de seguranca regularmente."

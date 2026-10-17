@@ -52,20 +52,16 @@ case "$1" in
             chmod -R a+rX "${WEBUI_DIR}" 2>/dev/null || true
         fi
 
-        # /var/api is shared by all iframe applications. Keep it owned by
-        # the application's primary group with group write access so every
-        # platform app user can create its own socket.
-        if [ -d /var/api ]; then
-            if [ -n "${APP_GROUP}" ]; then
-                chown "root:${APP_GROUP}" /var/api 2>/dev/null || true
-            fi
-            chmod 0770 /var/api 2>/dev/null || true
-        else
+        # /var/api is a platform-owned shared directory. On TOS 7 it is a symlink
+        # to /tmp/api with mode 1777 (sticky), so every application user can bind
+        # its own /var/api/<appid>.sock without any help from this package.
+        # Rewriting its owner or narrowing it to 0770 is forbidden by spec 10.6
+        # ("applications must not modify shared permissions") and would break the
+        # other iframe apps and the platform's own sockets. The directory is only
+        # created when it is genuinely missing, using the platform's own 1777 mode.
+        if [ ! -d /var/api ]; then
             mkdir -p /var/api
-            if [ -n "${APP_GROUP}" ]; then
-                chown "root:${APP_GROUP}" /var/api 2>/dev/null || true
-            fi
-            chmod 0770 /var/api 2>/dev/null || true
+            chmod 1777 /var/api 2>/dev/null || true
         fi
 
         if [ -d /run/systemd/system ]; then
