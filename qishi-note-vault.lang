@@ -2,96 +2,96 @@
 name = "启思笔记"
 auth = "qishiyi"
 descript = "私有 Markdown 知识库，支持标签、全文搜索、置顶、归档、回收站、附件、导入导出和备份。"
-release_note = "1.0.014：安装后若服务未能启动，页面会直接说明失败原因与排查步骤，安装脚本同时生成 postinst-diagnostic.txt 诊断记录；停用与卸载会确认进程真正退出，启动前自动清理已耗尽的 systemd 重启配额。"
+release_note = "1.0.015：修复“页面说后端服务未运行、其实是请求被浏览器或平台拦下”的误报。横幅现在按四类成因分别说明并给出对应处置——网络层被拦、TOS 会话未生效、平台代理没有转到本应用、后端确实返回错误，同时显示实际失败的请求地址。前端会探测规范允许的多个代理路径，并复用第一个真正回到本应用的地址；无体 GET 不再携带 Content-Type，也不再手写浏览器禁止的 Cookie 头；后端只在请求确实带 Origin 时回显跨源响应头并附 Vary: Origin。"
 important = "笔记和附件保存在 NAS 应用数据目录中，请定期执行导出备份。"
 
 [zh-hk]
 name = "啟思筆記"
 auth = "qishiyi"
 descript = "私人 Markdown 知識庫，支援標籤、全文搜尋、置頂、封存、回收站、附件、匯入匯出和備份。"
-release_note = "1.0.014：安裝後若服務未能啟動，頁面會直接說明失敗原因與排查步驟，安裝腳本同時生成 postinst-diagnostic.txt 診斷記錄；停用與解除安裝會確認程序真正結束，啟動前自動清理已耗盡的 systemd 重新啟動配額。"
+release_note = "1.0.015：修復「頁面說後端服務未運行、其實是請求被瀏覽器或平台攔下」的誤報。橫幅現在按四類成因分別說明並給出對應處置——網路層被攔、TOS 工作階段未生效、平台代理沒有轉到本應用、後端確實返回錯誤，同時顯示實際失敗的請求位址。前端會探測規範允許的多個代理路徑，並重複使用第一個真正回到本应用的位址；無主體 GET 不再攜帶 Content-Type，也不再手寫瀏覽器禁止的 Cookie 頭；後端只在請求確實帶 Origin 時回顯跨源回應標頭並附 Vary: Origin。"
 important = "筆記和附件保存在 NAS 應用資料目錄中，請定期執行匯出備份。"
 
 [en-us]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Private Markdown knowledge base with tags, full-text search, pin, archive, trash, attachments, import, export, and backup."
-release_note = "1.0.014: if the service never starts after install, the page now states the reason and the fix steps and the installer writes postinst-diagnostic.txt; disable and uninstall verify the process really exits, and an exhausted systemd restart quota is cleared before starting."
+release_note = "1.0.015: fixes the false alarm where the page blamed a dead backend for a request the browser or the platform never forwarded. The banner now separates four causes and gives the matching remedy - blocked at the network layer, no valid TOS session, the platform proxy not reaching this app, and a genuine backend error - and it shows the exact URL that failed. The frontend probes the proxy paths the spec allows and reuses the first one that actually answers as this app; bodyless GETs no longer send Content-Type and no longer hand-write the Cookie header browsers forbid; the backend echoes CORS headers only when the request really carries an Origin, and adds Vary: Origin."
 important = "Notes and attachments are stored in the NAS application data directory. Export backups regularly."
 
 [fr-fr]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de connaissances Markdown privee avec tags, recherche, epinglage, archive, corbeille, pieces jointes et sauvegarde."
-release_note = "1.0.014 : si le service ne démarre pas après l'installation, la page indique désormais le motif et les étapes de réparation, et l'installation écrit postinst-diagnostic.txt ; désactivation et désinstallation vérifient la vraie fin du processus et le quota de redémarrages systemd épuisé est remis à zéro avant le démarrage."
+release_note = "1.0.015 : corrige la fausse alerte qui accusait le backend d'être mort alors que la requête n'avait jamais été transmise. La bannière distingue désormais quatre causes avec le remède correspondant - bloqué au niveau réseau, session TOS absente, proxy de la plateforme n'atteignant pas cette application, véritable erreur du backend - et affiche l'URL exacte en échec. Le frontend teste les chemins de proxy autorisés par la spécification et réutilise le premier qui répond vraiment en tant que cette application ; les GET sans corps n'envoient plus Content-Type ni l'en-tête Cookie interdit par les navigateurs ; le backend ne renvoie les en-têtes CORS que si la requête porte un Origin, et ajoute Vary: Origin."
 important = "Les notes et pieces jointes sont stockees dans le dossier de donnees de l'application. Exportez regulierement une sauvegarde."
 
 [de-de]
 name = "Qishi Notiz-Tresor"
 auth = "qishiyi"
 descript = "Private Markdown-Wissensdatenbank mit Tags, Volltextsuche, Anpinnen, Archiv, Papierkorb, Anhangen und Backup."
-release_note = "1.0.014: Startet der Dienst nach der Installation nicht, nennt die Seite jetzt Grund und Schritte zur Behebung, und das Installationsskript schreibt postinst-diagnostic.txt; Deaktivieren und Deinstallieren prüfen das tatsächliche Beenden des Prozesses, vor dem Start wird ein erschöpftes systemd-Neustartkontingent zurückgesetzt."
+release_note = "1.0.015: behebt die Fehlalarm-Meldung, die einen toten Backend-Dienst für eine Anfrage verantwortlich machte, die der Browser oder die Plattform nie weitergeleitet hat. Das Banner unterscheidet jetzt vier Ursachen samt passender Abhilfe - auf Netzwerkebene blockiert, keine gültige TOS-Sitzung, der Plattform-Proxy erreicht diese App nicht, echter Backend-Fehler - und zeigt die exakte fehlgeschlagene URL. Das Frontend prüft die von der Spezifikation erlaubten Proxy-Pfade und verwendet den ersten weiter, der wirklich als diese App antwortet; GETs ohne Body senden kein Content-Type mehr und schreiben das von Browsern verbotene Cookie-Header nicht mehr manuell; das Backend gibt CORS-Header nur zurück, wenn die Anfrage ein Origin enthält, und ergänzt Vary: Origin."
 important = "Notizen und Anhange liegen im Datenverzeichnis der Anwendung. Erstellen Sie regelmaessig Export-Backups."
 
 [it-it]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base di conoscenza Markdown privata con tag, ricerca, fissaggio, archivio, cestino, allegati e backup."
-release_note = "1.0.014: se il servizio non si avvia dopo l'installazione, la pagina ora indica motivo e passaggi di correzione e lo script di installazione scrive postinst-diagnostic.txt; disattivazione e disinstallazione verificano che il processo termini davvero e il quota di riavvii systemd esaurito viene azzerato prima dell'avvio."
+release_note = "1.0.015: corregge il falso allarme che incolpava un backend morto per una richiesta mai inoltrata dal browser o dalla piattaforma. Il banner ora distingue quattro cause con il rimedio corrispondente - blocco a livello di rete, assenza di sessione TOS, proxy della piattaforma che non raggiunge questa app, errore reale del backend - e mostra l'URL esatto non riuscito. Il frontend verifica i percorsi proxy consentiti dalla specifica e riutilizza il primo che risponde davvero come questa app; le GET senza corpo non inviano più Content-Type e non scrivono più manualmente l'header Cookie vietato dai browser; il backend fa eco agli header CORS solo se la richiesta contiene un Origin e aggiunge Vary: Origin."
 important = "Note e allegati sono salvati nella directory dati dell'applicazione. Esporta regolarmente un backup."
 
 [es-es]
 name = "Qishi Note Vault"
 auth = "qishiyi"
 descript = "Base de conocimiento Markdown privada con etiquetas, busqueda, fijados, archivo, papelera, adjuntos y copias."
-release_note = "1.0.014: si el servicio no se inicia tras la instalación, la página ahora indica el motivo y los pasos de solución y el script de instalación genera postinst-diagnostic.txt; desactivar y desinstalar comprueban que el proceso finalice de verdad y se limpia el cupo agotado de reinicios de systemd antes de arrancar."
+release_note = "1.0.015: corrige la falsa alarma que culpaba a un backend caído de una petición que el navegador o la plataforma nunca reenviaron. El aviso ahora distingue cuatro causas con su remedio correspondiente - bloqueo en la capa de red, sesión TOS ausente, proxy de la plataforma que no llega a esta aplicación y error real del backend - y muestra la URL exacta que falló. El frontend prueba las rutas de proxy que permite la especificación y reutiliza la primera que responde de verdad como esta aplicación; los GET sin cuerpo ya no envían Content-Type ni escriben a mano la cabecera Cookie que prohíben los navegadores; el backend devuelve las cabeceras CORS solo si la petición lleva Origin y añade Vary: Origin."
 important = "Las notas y adjuntos se guardan en el directorio de datos de la aplicacion. Exporta copias con regularidad."
 
 [hu-hu]
 name = "Qishi Jegyzettar"
 auth = "qishiyi"
 descript = "Privat Markdown tudasbazis cimkekkel, keresesel, kituzessel, archivummal, kukaval, mellékletekkel es mentessel."
-release_note = "1.0.014: ha a szolgáltatás a telepítés után nem indul el, a oldal most megadja az okot és a javítási lépéseket, a telepítő szkript pedig postinst-diagnostic.txt fájlt ír; a letiltás és az eltávolítás ellenőrzi, hogy a folyamat valóban véget ért-e, és indulás előtt törli a kimerült systemd újraindítási keretet."
+release_note = "1.0.015: megszünteti azt a téves riasztást, amely olyan kérésért tette felelőssé a nem futó hátulrendszert, amelyet a böngésző vagy a platform soha nem továbbított. A sáv most négy okot és a hozzájuk tartozó teendőt különíti el - hálózati szintű blokkolás, érvénytelen TOS munkamenet, az alkalmazást el nem érő platform-proxy, valódi háttérhiba - és mutatja a ténylegesen megbukott URL-t. A frontend végigpróbálja a szabvány által engedélyezett proxy útvonalakat, és azt használja tovább, amelyik tényleg ezzel az alkalmazással válaszol; a törzs nélküli GET kérések nem küldenek Content-Type fejlécet, és a böngészők által tiltott Cookie fejlécet sem írják kézzel; a backend csak akkor ad vissza CORS fejléceket, ha a kérés tényleg tartalmaz Origint, és Vary: Origin mezőt is tesz hozzá."
 important = "A jegyzetek es mellékletek az alkalmazas adatkonyvtaraban tarolodnak. Rendszeresen exportaljon mentest."
 
 [ja-jp]
 name = "Qishi ノート保管庫"
 auth = "qishiyi"
 descript = "タグ、全文検索、固定、アーカイブ、ゴミ箱、添付、入出力、バックアップに対応したプライベート Markdown ナレッジベースです。"
-release_note = "1.0.014: インストール後にサービスが起動しない場合、ページが理由と対処手順を表示し、インストールスクリプトが postinst-diagnostic.txt を書き出します。無効化とアンインストールではプロセスが実際に終了したかを確認し、起動前に枯渇した systemd 再起動クレジットをリセットします。"
+release_note = "1.0.015：ブラウザまたはプラットフォームが実際には転送しなかった要求を「バックエンドが動いていない」と誤表示する問題を修正しました。バナーは 4 つの原因と対処を分けて表示します——ネットワーク層で遮断、TOS セッション未有効、プラットフォームプロキシが本アプリに到達しない、バックエンドが実際にエラーを返した——そして失敗した正確な URL を表示します。フロントエンドは仕様が認めるプロキシ経路を順に確認し、本アプリとして応答したものを以後利用します。本文のない GET は Content-Type を送らず、ブラウザが禁止する Cookie ヘッダーも手書きしません。バックエンドは要求に Origin が実際にある場合のみ CORS ヘッダーを返し、Vary: Origin を追加します。"
 important = "ノートと添付ファイルは NAS アプリのデータディレクトリに保存されます。定期的にエクスポートしてください。"
 
 [ko-kr]
 name = "Qishi 노트 보관함"
 auth = "qishiyi"
 descript = "태그, 전체 검색, 고정, 보관, 휴지통, 첨부, 가져오기, 내보내기 및 백업을 지원하는 개인 Markdown 지식 베이스입니다."
-release_note = "1.0.014: 설치 후 서비스가 시작되지 않으면 페이지가 원인과 조치 단계를 표시하고 설치 스크립트가 postinst-diagnostic.txt를 작성합니다. 비활성화와 제거 시 프로세스가 실제로 종료됐는지 확인하며, 시작 전에 소진된 systemd 재시작 횟수를 초기화합니다."
+release_note = "1.0.015: 브라우저 또는 플랫폼이 실제로 전달하지 않은 요청을 '백엔드가 실행되지 않음'으로 오보하던 문제를 수정했습니다. 배너는 네 가지 원인과 조치를 구분하여 표시합니다 — 네트워크 계층 차단, TOS 세션 미유효, 플랫폼 프록시가 본 앱에 도달하지 않음, 백엔드가 실제로 오류를 반환한 경우 — 그리고 실패한 정확한 URL을 표시합니다. 프론트엔드는 명세가 허용하는 프록시 경로를 순서대로 탐색하여 본 앱으로 응답한 첫 경로를 이후에 재사용합니다. 본문이 없는 GET은 Content-Type을 보내지 않고, 브라우저가 금지하는 Cookie 헤더도 직접 작성하지 않습니다. 백엔드는 요청에 Origin이 실제로 있을 때만 CORS 헤더를 반사하고 Vary: Origin을 추가합니다."
 important = "노트와 첨부 파일은 NAS 애플리케이션 데이터 디렉터리에 저장됩니다. 정기적으로 백업을 내보내세요."
 
 [pl-pl]
 name = "Qishi Skarbiec Notatek"
 auth = "qishiyi"
 descript = "Prywatna baza wiedzy Markdown z tagami, wyszukiwaniem, przypinaniem, archiwum, koszem, zalacznikami i kopiami."
-release_note = "1.0.014: jeśli usługa nie uruchomi się po instalacji, strona podaje teraz przyczynę i kroki naprawy, a skrypt instalacyjny zapisuje postinst-diagnostic.txt; wyłączenie i odinstalowanie sprawdzają, czy proces faktycznie się zakończył, a przed startem czyszczony jest wyczerpany limit ponownych uruchomień systemd."
+release_note = "1.0.015: usuwa fałszywy alarm, w którym strona obwiniała martwy backend za żądanie, którego przeglądarka ani platforma nigdy nie przekazały. Baner rozróżnia teraz cztery przyczyny wraz z odpowiednim działaniem - zablokowanie na warstwie sieciowej, brak ważnej sesji TOS, proxy platformy nie trafia do tej aplikacji, rzeczywisty błąd backendu - i pokazuje dokładny adres URL, który zawiódł. Frontend sprawdza ścieżki proxy dopuszczone przez specyfikację i używa dalej tej, która naprawdę odpowiada jako ta aplikacja; GET bez treści nie wysyła Content-Type ani nie dopisuje ręcznie nagłówka Cookie, którego przeglądarki zabraniają; backend zwraca nagłówki CORS tylko gdy żądanie naprawdę niesie Origin i dodaje Vary: Origin."
 important = "Notatki i zalaczniki sa przechowywane w katalogu danych aplikacji. Regularnie eksportuj kopie zapasowa."
 
 [ru-ru]
 name = "Qishi Khranilishche zametok"
 auth = "qishiyi"
 descript = "Chastnaya baza znanij Markdown s tegami, poiskom, zakrepeleniem, arhivom, korzinoj, vlozheniyami i rezervnymi kopiyami."
-release_note = "1.0.014: если служба не запустилась после установки, страница теперь указывает причину и шаги устранения, а установщик создаёт postinst-diagnostic.txt; отключение и удаление проверяют, что процесс действительно завершился, а перед запуском сбрасывается исчерпанный лимит перезапусков systemd."
+release_note = "1.0.015: устраняет ложную тревогу, при которой страница винила неработающий бэкенд в запросе, который браузер или платформа никогда не передавали. Баннер теперь разделяет четыре причины с соответствующими действиями — блокировка на сетевом уровне, недействительная сессия TOS, прокси платформы не дошёл до этого приложения, реальная ошибка бэкенда, — и показывает точный неудавшийся URL. Фронтенд перебирает прокси-пути, разрешённые спецификацией, и дальше использует тот, что действительно отвечает как это приложение; GET без тела больше не отправляет Content-Type и не прописывает вручную заголовок Cookie, запрещённый браузерами; бэкенд возвращает CORS-заголовки, только если запрос действительно несёт Origin, и добавляет Vary: Origin."
 important = "Zametki i vlozheniya hranyatsya v kataloge dannyh prilozheniya. Regulyarno eksportirujte rezervnuyu kopiyu."
 
 [tr-tr]
 name = "Qishi Not Kasasi"
 auth = "qishiyi"
 descript = "Etiketler, arama, sabitleme, arsiv, cop kutusu, ekler, ice/disa aktarma ve yedekleme ozellikli ozel Markdown bilgi tabani."
-release_note = "1.0.014: hizmet kurulumdan sonra başlatılamazsa sayfa artık nedeni ve onarım adımlarını gösterir, kurulum betiği postinst-diagnostic.txt yazar; devre dışı bırakma ve kaldırma işleminde sürecin gerçekten sona erdiği doğrulanır ve başlatmadan önce tükenen systemd yeniden başlatma kotası sıfırlanır."
+release_note = "1.0.015: tarayıcının veya platformun hiç iletmediği bir istek için sayfanın arka ucu çökmüş gibi göstermesi düzeltildi. Ayrış şimdi dört nedeni ve karşılığındaki işlemi ayırıyor — ağ katmanında engellendi, geçerli TOS oturumu yok, platform vekili bu uygulamaya ulaşmadı, gerçek arka uç hatası — ve başarısız olan tam adresi gösteriyor. Ön uç, yönetmeliğin izin verdiği vekil yollarını sırayla dener ve gerçekten bu uygulama olarak yanıt veren ilkini sonraki çağrılarda yeniden kullanır; gövdesiz GET artık Content-Type göndermez ve tarayıcıların yasakladığı Cookie başlığını elle yazmaz. Arka uç, CORS başlıklarını yalnızca istek gerçekten bir Origin taşıyorsa yansıtır ve Vary: Origin ekler."
 important = "Notlar ve ekler NAS uygulama veri dizininde saklanir. Duzenli olarak yedek disa aktarin."
 
 [pt-pt]
 name = "Qishi Cofre de Notas"
 auth = "qishiyi"
 descript = "Base de conhecimento Markdown privada com etiquetas, pesquisa, fixacao, arquivo, lixo, anexos, importacao, exportacao e copia."
-release_note = "1.0.014: se o serviço não arrancar após a instalação, a página indica agora o motivo e os passos de correção e o script de instalação escreve postinst-diagnostic.txt; desativar e desinstalar verificam se o processo terminou realmente e a quota de reinícios do systemd esgotada é limpa antes do arranque."
+release_note = "1.0.015: corrige o falso alarme em que a página culpava um backend inactivo por um pedido que o navegador ou a plataforma nunca encaminharam. O aviso distingue agora quatro causas com a respetiva correção - bloqueado à camada de rede, sessão TOS inválida, o proxy da plataforma não chega a esta aplicação e erro real do backend - e mostra o URL exato que falhou. O frontend testa os caminhos de proxy permitidos pela especificação e reutiliza o primeiro que realmente responde como esta aplicação; GETs sem corpo deixam de enviar Content-Type e de escrever manualmente o cabeçalho Cookie que os navegadores proíbem; o backend devolve cabeçalhos CORS apenas quando o pedido realmente leva Origin e acrescenta Vary: Origin."
 important = "As notas e anexos ficam no diretorio de dados da aplicacao. Exporte copias de seguranca regularmente."

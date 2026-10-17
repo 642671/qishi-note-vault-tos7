@@ -1,6 +1,6 @@
 # Qishi Note Vault for TOS 7
 
-`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.013`。
+`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.015`。
 
 应用使用 WebUI 内部打开模式，前端通过 TOS 平台代理访问本地 Python 服务：
 
@@ -11,6 +11,13 @@
   -> Python 3.10 后端
   -> SQLite + attachments/
 ```
+
+代理根不写死一种：前端按规范允许的几种形式顺序探测，用回包里的 `app` 字段确认"这确实是本应用"，
+选中后复用。请求失败时页面按四类成因分别提示——网络层被浏览器或平台拦下、TOS 会话未生效、
+平台代理没有转到本应用、后端确实返回错误——并列出实际失败的请求地址；只有最后一类才说
+"后端服务未运行"。实机上未登录时平台对任意 `/v2/...` 路径回的是 HTTP 200 +
+`{"is_login":false,"code_num":117}`，所以判据必须是回包内容而不是状态码。
+附件预览与备份导出这类非 JSON 响应原样交回调用方，跨源响应头只在请求真的带 `Origin` 时回显。
 
 笔记和附件全部保存在 NAS 应用数据目录，不依赖外部数据库或云服务。
 
@@ -106,8 +113,8 @@ Windows 上没有可用的 `python` 命令时，改用 `py -3 build.py --platfor
 生成文件：
 
 ```text
-dist/qishi-note-vault_1.0.013_x86_64.deb
-dist/qishi-note-vault_1.0.013_x86_64.deb.sha256
+dist/qishi-note-vault_1.0.015_x86_64.deb
+dist/qishi-note-vault_1.0.015_x86_64.deb.sha256
 ```
 
 构建脚本会自动检查：
@@ -147,7 +154,7 @@ dist/qishi-note-vault_1.0.013_x86_64.deb.sha256
 发布标签格式：
 
 ```bash
-git tag v1.0.013
+git tag v1.0.015
 git push origin main --tags
 ```
 

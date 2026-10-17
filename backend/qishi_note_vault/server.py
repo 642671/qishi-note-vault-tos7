@@ -55,7 +55,22 @@ class NoteVaultHandler(BaseHTTPRequestHandler):
         return
 
     def _origin(self) -> str:
-        return self.headers.get("Origin") or "null"
+        return self.headers.get("Origin") or ""
+
+    def _apply_cors(self) -> None:
+        """只在请求确实带 Origin 时回 CORS 头。
+
+        平台代理做的是同源转发，绝大多数请求根本没有 Origin。无条件回
+        "Access-Control-Allow-Origin: null" 没有任何意义，还会让沙箱 iframe
+        （那里的 Origin 就是字面量 "null"）看起来被放行。带 credentials 时
+        必须附 Vary: Origin，否则共享缓存会把一个源的响应喂给另一个源。
+        """
+        origin = self._origin()
+        if not origin:
+            return
+        self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Vary", "Origin")
 
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -63,8 +78,7 @@ class NoteVaultHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Access-Control-Allow-Origin", self._origin())
-        self.send_header("Access-Control-Allow-Credentials", "true")
+        self._apply_cors()
         self.end_headers()
         self.wfile.write(body)
 
@@ -81,6 +95,7 @@ class NoteVaultHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("X-Content-Type-Options", "nosniff")
+        self._apply_cors()
         if filename:
             disposition = "attachment" if download else "inline"
             safe_name = filename.replace('"', "")[:180]
@@ -324,9 +339,9 @@ class NoteVaultHandler(BaseHTTPRequestHandler):
         self._handle_request("DELETE")
 
     def do_OPTIONS(self) -> None:
+        # 规范 8.3.1 要求后端自己应答预检；这三个头是平台代理会原样转发的字段。
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", self._origin())
-        self.send_header("Access-Control-Allow-Credentials", "true")
+        self._apply_cors()
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Csrf-Token, Cookie")
         self.send_header("Access-Control-Max-Age", "600")

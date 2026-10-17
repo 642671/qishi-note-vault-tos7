@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.0.015 - 2026-10-17
+
+- 修正一个会误导用户的误报：前端把"请求根本没被浏览器或平台转发"也报成
+  "后端服务未运行"。`Failed to fetch` 是网络层拒绝（证书不受信、连接被重置、
+  CORS/CSP、页面处于沙箱来源），它不能证明后端进程没在跑。
+- 实机（10.18.15.136，TOS 7.0.1298）测得：未登录时平台对任意 `/v2/...` 代理路径
+  回的是 **HTTP 200** + `{"is_login":false,"code":false,"msg":"please login","code_num":117}`，
+  不是 401。旧代码只看 `response.ok` 与 `data.ok`，会把这种回包当成"本应用健康检查通过"，
+  随后显示 `Python undefined`。现在按 `is_login`/`code_num`/`msg` 识别平台信封并归为会话问题。
+- 失败被分成四类，横幅按类给标题、正文、颜色和处置：`network`（请求没能离开浏览器）、
+  `session`（TOS 会话没有生效）、`gateway`（平台代理没有转到本应用）、
+  `offline`（后端服务返回了错误）。非 `offline` 用琥珀色，避免用户去重启一个本来就好的服务。
+  横幅第一条永远是实际失败的那个请求地址。
+- 代理根不再硬编码：按 `/v2/proxy/qishi-note-vault`、`/v2/proxy/qishi-note-vault/api`、
+  `<页面所在前缀>/v2/proxy/qishi-note-vault` 三个候选顺序探测，判据是回包里的 `app` 字段
+  等于本应用（规范 8.9 只承认第一种，规范 8.7 要求后端同时兼容后几种，实机固件也确实
+  存在只在带前缀路径上放行代理的情况）。选定后复用；某天突然 404 时重新探测一次，不循环。
+- 请求头收紧：无体 GET 不再带 `Content-Type`（它是 CORS 非安全字段，会让请求白付一次预检）；
+  不再手写 `Cookie` 请求头——规范 8.10 要求带它，但浏览器把 `Cookie` 列为 forbidden header
+  name，手写那条会被静默丢弃，而 `TMSESSNAME` 本身是 `HttpOnly`（实机 `Set-Cookie` 已验证），
+  JS 读出来永远是空串。真实会话由 `credentials:"include"` 携带。
+- 后端 CORS 修正：只在请求确实带 `Origin` 时回显跨源头并附 `Vary: Origin`，
+  不再无条件回 `Access-Control-Allow-Origin: null`。作为对照，平台自身的 TOSDaemon
+  回的是字面量 `Access-Control-Allow-Origin: same-origin`——那不是合法取值。
+  启思笔记的二进制响应（附件、备份导出）同样带上跨源头。
+- 400 与 401 语义分清：后端回 400（输入不合法）不再触发故障横幅，只把错误写进结果区；
+  `serviceDown` 仅在真正可能是服务侧问题时为真。
+- `network` 分型给出可自查的步骤：先看 F12 网络面板里这条请求是不是 `Blocked by client`
+  （扩展拦截），再确认设备证书已被信任、页面确实是从应用中心打开的。实机上这一类最常见的原因
+  是浏览器扩展或证书，而不是后端。
+- 实机（TOS 7.0.1298）验证：未登录时平台对任意 `/v2/...` 路径回登录信封，`/v2/` 之外的路径回
+  nginx 404 HTML，写错前缀（`/v2/proxy2/...`）被 301 静默改写；套接字侧 `/health`、`/api/health`、
+  `/<appid>/health`、`/v2/proxy/<appid>/health` 四种路径全部命中；备份导出这类二进制响应带回了
+  回显的 `Origin` 与 `Vary: Origin`；浏览器里四类分型、健康态、"重试连接"恢复，以及新建、读取、
+  修改、列表、彻底删除这条完整链路都已逐条确认。
+- 新增 `backend/tests/frontend_request_harness.cjs` 与
+  `backend/tests/test_frontend_request_layer.py`：用 Node 的 vm 把 `frontend/app.js`
+  连同假 `document`/`location`/`fetch` 真正跑起来，逐场景断言失败归类、代理根探测与复用、
+  请求头形状，以及"非 JSON 但状态正常的响应必须原样交回"。字符串断言证明不了行为，
+  这一版要的就是行为。另在路由测试中补 `CorsHeaderTests` 锁死预检与回显规则。
+- 14 种语言的 `release_note` 更新至本版本。
+
 ## 1.0.014 - 2026-10-17
 
 - 解决“安装成功但服务从未启动”这类最难自查的问题：`postinst` 不再只执行一次

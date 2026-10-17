@@ -121,3 +121,132 @@ dpkg 返回 0、App Center 显示已启用，页面却什么都没有。以下�
 `prerm` 的 14 秒轮询，systemd 自己会先完成强杀。实测用一个忽略 `SIGTERM` 的进程验证：
 `dpkg -r` 用时 12 秒，进程、socket、单元文件全部清除，`/var/api` 属主与模式保持
 `777 test:test` 未被改动。
+
+## 7. 请求层：四类失败与代理路由实测（1.0.015）
+
+触发这一轮改动的是页面上这句提示：
+
+```text
+后端服务未运行 …… 失败原因：无法连接后端服务：Failed to fetch
+```
+
+`Failed to fetch` 是 fetch 在网络层抛出的 `TypeError`，只说明请求没能离开浏览器或没拿到响应，
+**不能**证明后端进程没在运行。旧代码把所有异常都归为"后端没运行"，所以这句话在多数情况下是错的。
+下面先列在 `10.18.15.136`（TOS 7.0.1298）上实测到的平台行为，再说明据此重写的请求层。
+启思笔记与"生活工具箱"共用同一套设计，本节措辞按本应用改写。
+
+### 7.1 代理链路的实测结论
+
+| 位置 | 实测行为 |
+|---|---|
+| nginx | `location ~ ^/v2/(.*)` 去掉 `/v2/` 后 `proxy_pass http://127.0.0.1:5050/$1?$args`（TOSDaemon） |
+| 未登录时任意 `/v2/` 路径 | **HTTP 200** + `{"is_login":false,"code":false,"msg":"please login","data":null,"code_num":117,"code_msg":"please login"}`，包括 `/v2/proxy/一个不存在的appid/health` |
+| 不在 `/v2/` 下的路径 | nginx 404 + `text/html`（`<title>404 Not Found</title>`） |
+| `/v2/` 下不需要登录的未知接口 | TOSDaemon 404 + `text/plain`，正文 `404 page not found` |
+| 写错前缀，如 `/v2/proxy2/qishi-note-vault/health` | **301** 重写到 `/proxy2/qishi-note-vault/health/?`，然后才 404 |
+| 80 / 443 端口 | 只 `return 301` 到 8181 / 5443；两个端口的 `root` 都是 `/usr/www/`，include 同一份 extend 配置 |
+| 平台自己的 OPTIONS 预检 | 204，但 `Access-Control-Allow-Origin: same-origin` —— 非法字面值，浏览器不会接受 |
+| CSP | `default-src 'self' *.terra-master.com …`，没有 `connect-src`，同源 fetch 放行 |
+| 会话 cookie | `TMSESSNAME` 是 HttpOnly（JS 读不到），`X-Csrf-Token` 不是 |
+
+鉴权发生在路由之前，这一条决定了 `gateway` 与 `session` 的先后：未登录时无论路径写什么，
+`/v2/proxy/...` 都先被登录信封挡下，只有会话有效才会去查注册表。301 那一行则说明状态码根本
+不能当判据——一个拼错的前缀不报错，只是安静地跳走。
+
+由此确定的判据是：**看回包内容，不看 HTTP 状态码。** 200 可能是登录信封，404 可能是 nginx 的
+HTML 或 TOSDaemon 的纯文本，301 可能是拼错的前缀，它们都不是本应用；`/health` 回包必须带
+`app == "qishi-note-vault"` 才算命中路由。
+
+浏览器与套接字两侧的验收（1.0.015，`10.18.15.136`）：
+
+- 套接字侧直连 `/var/api/qishi-note-vault.sock`：`/health`、`/api/health`、
+  `/qishi-note-vault/health`、`/v2/proxy/qishi-note-vault/health` 四种路径全部回同一个健康 JSON。
+- 套接字侧的请求头：不带 `Origin` 的同源请求没有任何 `Access-Control-*` 头；带 `Origin` 时回显该值
+  并附 `Vary: Origin`；`OPTIONS` 预检回 204 且 `Access-Control-Allow-Headers` 覆盖 `Content-Type`、
+  `X-Csrf-Token`、`Cookie`；`/backup/export` 这类二进制响应同样带回显头，且 `Content-Type:
+  application/zip` 与 `Content-Disposition: attachment` 正常。
+- 平台侧（页面放在 `/usr/www/probe-qn/`，与 TOS 同源）：未登录时页面显示"TOS 会话没有生效"
+  而不是"后端服务未运行"——这正是旧版本误报的那一格；把候选根改成 `/nope/health` 得到
+  "平台代理没有转到本应用"，改成指向不存在的端口得到"无法连接平台代理 ……
+  详情：TypeError: Failed to fetch"。
+- 正常回包与后端故障改用一个把 `/v2/proxy/<appid>/<api>` 转给 unix socket 的本地桩
+  （`.nas-lab/serve_webui.py`）取证：徽标 `service-badge is-online`、控制台打印
+  `Qishi Note Vault 1.0.015 Python 3.10.12 via /v2/proxy/qishi-note-vault`、提示条 `hidden`，
+  并且新建、读取、修改、列表、彻底删除这条链路全部走通（验证数据当场删除）；把桩换成一律回 502
+  的形态后提示条转为红色 `offline` 并列出 `systemctl status` 与诊断文件；修好桩再点"重试连接"，
+  徽标恢复、提示条收起。
+- 需要说清楚的边界：**"会话有效时平台代理会把请求转到本应用"这一条只在套接字侧直连验证过。**
+  TOS 网页登录是 RSA 包装的，脚本无法登录，因此没有带有效会话在平台代理上跑通过一次真实请求。
+  `offline` 分型也相应地是用桩复现的，而不是在平台代理上观测到的。
+
+### 7.2 四类失败分型
+
+`apiFailure()` 给每个错误打上 `kind`，提示条按 `kind` 渲染各自的标题、正文、配色和处置建议：
+
+| kind | 触发条件 | 标题 | 提示的下一步 |
+|---|---|---|---|
+| `network` | fetch 抛异常，含 `Failed to fetch` | 无法连接平台代理 | 先显示实际失败的请求地址，再按 F12 网络面板区分：`Blocked by client` 是扩展拦的，证书不受信与沙箱来源也在这一类 |
+| `session` | 401，或回包命中登录信封 | TOS 会话没有生效 | 重新登录 TOS、确认页面是从应用中心打开的 |
+| `gateway` | 回包不是本应用 JSON（nginx HTML、`app` 字段不符、JSON 解析失败） | 平台代理没有转到本应用 | 重新探测候选路由，并把三种形式列给用户核对 |
+| `offline` | 后端 5xx | 后端服务未运行 | `systemctl status qishinotevault-system.service` 与诊断文件绝对路径 |
+| `rejected` | 后端 4xx（401 除外） | 不弹提示条 | 只在结果区/toast 显示错误，徽标保持"在线" |
+
+`error.serviceDown` 只在非 `rejected` 时为真，所以一次填错的请求（后端回 400）不再拉故障横幅。
+`network` / `session` / `gateway` 三种用 `--notice-accent: var(--accent)` 显示为提醒色而不是红色，
+只有真正指向后端的 `offline` 才是红色；徽标对应 `.service-badge.is-warn`。提示条本身加了
+`max-height: min(56vh, 420px)` 与 `overflow-y: auto`，因为步骤列表里现在会列出不止一个 URL，
+不能让它顶出窗口或压住右下 20×20 的缩放角。
+
+### 7.3 路由探测
+
+规范 8.9 把 `/v2/proxy/<appid>/<api>` 定为唯一形式，8.7 又要求后端兼容
+`/v2/proxy/<appid>/api/<resource>` 与 `<config.ini.path>/<api_name>`，个别固件确实只在带前缀的路径上
+放行代理。前端按序探测三个候选——`/v2/proxy/qishi-note-vault`、`/v2/proxy/qishi-note-vault/api`、
+`<页面目录>/v2/proxy/qishi-note-vault`——选中第一个回包 `app` 字段匹配的根并复用。探测只在根未就绪
+或出现 `gateway` 错误时发生，`session` 与 `network` 立即上抛，不做无谓重试。
+
+### 7.4 非 JSON 响应仍然交给调用方
+
+附件预览与备份导出（`/backup/export`）走的是正常 200 但 `Content-Type` 不是 JSON 的路。
+`send()` 在这种情况下直接返回原始 `Response`，由调用方读 `blob()`/`FormData` 边界，
+只有 401 或非 `ok` 才升级为 `session` / `gateway`。这条分支由 harness 的
+`non-json-ok-returns-response` 场景和 `CorsHeaderTests::test_binary_response_also_carries_echoed_origin` 守住。
+
+### 7.5 后端 CORS 修正
+
+旧实现取不到 `Origin` 时兜底回 `Access-Control-Allow-Origin: null`，这种头对任何请求都没有意义。
+现在 `_apply_cors()` 只在请求确实带 `Origin` 时回显该值，并同时附
+`Access-Control-Allow-Credentials: true` 与 `Vary: Origin`；同源请求不带 `Origin`，因此不再收到 CORS 头。
+`_send_bytes()`（附件与备份）与 `do_OPTIONS` 走同一套逻辑，预检回 204 并放行平台那组请求头。
+平台自己在预检里回 `Access-Control-Allow-Origin: same-origin` 是非法字面值——这个错误不复制一遍。
+
+### 7.6 请求头收紧
+
+GET 不带 `Content-Type`：它是 CORS 非安全字段，会让每个只读请求先付一次预检。
+规范 8.10 要求同时带 `X-Csrf-Token` 和 `Cookie`，但 `Cookie` 在浏览器的 forbidden header name 名单里，
+fetch 里手写的那条被静默丢弃（既不报错也不发送），而真正的 `TMSESSNAME` 本身是 HttpOnly，
+JS 读出来永远是空串。会话实际由 `credentials: "include"` 携带，所以只保留真正能生效的 `X-Csrf-Token`。
+`platformHeaders(isJson)` 保留这个参数是因为图片上传走 `FormData`：那里的 `Content-Type` 必须留给浏览器
+生成，手写会丢掉 multipart boundary。
+
+### 7.7 护栏
+
+`backend/tests/frontend_request_harness.cjs` 用 Node 的 `vm` 起一个带假
+`document` / `location` / `fetch` 的沙箱执行真实的 `app.js`，逐场景断言分型结果（11 个共享场景，
+本应用因二进制响应多 1 个，共 12 个）。
+`backend/tests/test_frontend_request_layer.py` 跑这个 harness，再补充源码与样式连线断言：提示条的
+五个 id 与 `data-kind="offline"` 默认值、三种提醒色的 CSS 规则与 `--notice-accent`、
+"实际失败的请求地址"必须引用 `error.url`、禁止出现手写 `Cookie` 头与 `getCookie("TMSESSNAME")`、
+三个前端文件保持 LF 无 BOM。`CorsHeaderTests` 对真实 socket 发裸 HTTP 请求校验头，
+含"回显 `Origin` 而不是硬编码"和二进制响应同样带头。
+
+必须说清楚的局限：用户设备上的这一次 `Failed to fetch` 未能在 `10.18.15.136` 复现——同一请求形式在
+该机可通——而且实验机侧载安装后没有 App Center 注册（`/usr/www/qishi-note-vault` 缺失），页面本身无法
+由平台下发，所以原始客户端原因只能靠新版本横幅第一条"实际失败的请求地址"回到用户那边取证。
+按实机证据，这一类现象的可能原因从高到低是：浏览器扩展拦截（F12 显示 `Blocked by client`）、
+证书不受信或走了 TDM 远程 / 反向代理、会话没生效（新版会归为 `session` 而不是这一类）、
+应用未在应用中心注册（归 `gateway`）、后端真的挂了（归 `offline`）。
+已经排除的假设：8181 与 5443 两个 server 块的 `root` 同为 `/usr/www/` 并 include 同一份 extend
+配置，"页面与接口不同端口"不成立；CSP 没有 `connect-src`；GET 不带自定义头不触发预检。
+本轮可交付的价值是：应用现在能指明四类原因中的哪一类并显示实际失败的 URL，
+同时修掉三个真实缺陷（把 200 登录信封当健康、没有路由回退、措辞误导）。
