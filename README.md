@@ -1,6 +1,6 @@
 # Qishi Note Vault for TOS 7
 
-`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.015`。
+`qishi-note-vault` 是一个运行在 TOS 7 上的私有 Markdown 知识库，当前版本为 `1.0.016`。
 
 应用使用 WebUI 内部打开模式，前端通过 TOS 平台代理访问本地 Python 服务：
 
@@ -28,7 +28,13 @@
 - 标题和正文搜索
 - 标签筛选
 - 置顶、归档和回收站
-- Markdown 预览
+- Markdown 预览与快捷格式工具栏
+- 实时字符、词数和行数统计
+- Ctrl+B/I/K/F/N/S 编辑快捷键
+- Markdown 快捷格式工具栏：标题、粗体、斜体、引用、列表、代码和链接
+- 实时字符、词数、行数与文档统计
+- 当前笔记一键导出为 Markdown
+- `Ctrl+S` 保存、`Ctrl+F` 搜索、`Ctrl+N` 新建、`Ctrl+Shift+E` 导出
 - 图片、PDF、文本、Markdown 和压缩包附件
 - ZIP 完整备份和恢复
 - 14 种 TOS 语言
@@ -113,8 +119,8 @@ Windows 上没有可用的 `python` 命令时，改用 `py -3 build.py --platfor
 生成文件：
 
 ```text
-dist/qishi-note-vault_1.0.015_x86_64.deb
-dist/qishi-note-vault_1.0.015_x86_64.deb.sha256
+dist/qishi-note-vault_1.0.016_x86_64.deb
+dist/qishi-note-vault_1.0.016_x86_64.deb.sha256
 ```
 
 构建脚本会自动检查：
@@ -154,7 +160,7 @@ dist/qishi-note-vault_1.0.015_x86_64.deb.sha256
 发布标签格式：
 
 ```bash
-git tag v1.0.015
+git tag v1.0.016
 git push origin main --tags
 ```
 

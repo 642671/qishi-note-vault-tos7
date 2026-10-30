@@ -653,11 +653,61 @@ function applyPreviewMode() {
   grid.classList.toggle("editor-only", state.previewMode === "editor");
 }
 
+function applyEditorResult(result) {
+  var editor = byId("noteBody");
+  editor.value = result.text;
+  editor.focus();
+  editor.setSelectionRange(result.start, result.end);
+  editor.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function applyMarkdownFormat(format) {
+  var tools = window.QishiEditorTools;
+  var editor = byId("noteBody");
+  if (!tools || !editor || !state.current) {
+    return;
+  }
+  var start = editor.selectionStart || 0;
+  var end = editor.selectionEnd || start;
+  var result;
+  if (format === "h2") {
+    result = tools.prefixLines(editor.value, start, end, "## ");
+  } else if (format === "bold") {
+    result = tools.wrapSelection(editor.value, start, end, "**", "**", "粗体");
+  } else if (format === "italic") {
+    result = tools.wrapSelection(editor.value, start, end, "*", "*", "斜体");
+  } else if (format === "quote") {
+    result = tools.prefixLines(editor.value, start, end, "> ");
+  } else if (format === "bullet") {
+    result = tools.prefixLines(editor.value, start, end, "- ");
+  } else if (format === "ordered") {
+    result = tools.prefixLines(editor.value, start, end, "1. ");
+  } else if (format === "code") {
+    result = tools.wrapSelection(editor.value, start, end, "`", "`", "代码");
+  } else if (format === "link") {
+    result = tools.formatLink(editor.value, start, end);
+  } else {
+    return;
+  }
+  applyEditorResult(result);
+}
+
+function updateDocumentStats() {
+  var node = byId("documentStats");
+  var tools = window.QishiEditorTools;
+  if (!node || !tools) {
+    return;
+  }
+  var stats = tools.documentStats(byId("noteBody").value);
+  node.textContent = stats.characters + " 字 · " + stats.words + " 词 · " + stats.lines + " 行";
+}
+
 function markDirty() {
   state.dirty = true;
   byId("saveState").textContent = "未保存";
   byId("saveState").classList.add("is-dirty");
   updatePreview();
+  updateDocumentStats();
   window.clearTimeout(state.saveTimer);
   state.saveTimer = window.setTimeout(function () {
     saveCurrent(true);
@@ -702,6 +752,7 @@ async function selectNote(id) {
   byId("saveState").textContent = "已保存";
   byId("saveState").classList.remove("is-dirty");
   updatePreview();
+  updateDocumentStats();
   renderAttachments();
   renderNotes();
 }
@@ -814,6 +865,34 @@ async function restoreCurrent() {
   toast("笔记已恢复");
 }
 
+function exportCurrentNote() {
+  if (!state.current || !state.selectedId) {
+    toast("请先选择一条笔记", "error");
+    return;
+  }
+  var title = (byId("noteTitle").value || "未命名笔记").trim() || "未命名笔记";
+  var body = byId("noteBody").value.replace(/\s+$/, "");
+  var markdown = /^#\s+/.test(body) ? body : "# " + title + "\n\n" + body;
+  var tags = tagsFromInput();
+  if (tags.length) {
+    markdown += "\n\n---\n\n标签：" + tags.join(", ");
+  }
+  var safeName = title
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, " ")
+    .slice(0, 80) || "note";
+  var blob = new Blob([markdown + "\n"], { type: "text/markdown;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement("a");
+  link.href = url;
+  link.download = safeName + ".md";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  toast("当前笔记已导出为 Markdown");
+}
+
 async function exportBackup() {
   var response = await fetch(API_ROOT + "/backup/export", {
     credentials: "include",
@@ -896,6 +975,7 @@ function bindEvents() {
   byId("saveButton").addEventListener("click", function () {
     saveCurrent(false).catch(toastError);
   });
+  byId("exportNoteButton").addEventListener("click", exportCurrentNote);
   byId("previewButton").addEventListener("click", function () {
     state.previewMode = state.previewMode === "split"
       ? "preview"
@@ -961,10 +1041,45 @@ function bindEvents() {
   byId("noteTitle").addEventListener("input", markDirty);
   byId("noteBody").addEventListener("input", markDirty);
   byId("noteTags").addEventListener("input", markDirty);
+  document.querySelectorAll(".format-button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      applyMarkdownFormat(button.dataset.format);
+    });
+  });
+  window.addEventListener("beforeunload", function (event) {
+    if (state.dirty) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  });
   document.addEventListener("keydown", function (event) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+    var modifier = event.ctrlKey || event.metaKey;
+    var key = event.key.toLowerCase();
+    if (!modifier) {
+      return;
+    }
+    if (key === "s") {
       event.preventDefault();
       saveCurrent(false).catch(toastError);
+    } else if (key === "e" && event.shiftKey) {
+      event.preventDefault();
+      exportCurrentNote();
+    } else if (key === "f") {
+      event.preventDefault();
+      byId("searchInput").focus();
+      byId("searchInput").select();
+    } else if (key === "n") {
+      event.preventDefault();
+      createNote().catch(toastError);
+    } else if (document.activeElement === byId("noteBody") && key === "b") {
+      event.preventDefault();
+      applyMarkdownFormat("bold");
+    } else if (document.activeElement === byId("noteBody") && key === "i") {
+      event.preventDefault();
+      applyMarkdownFormat("italic");
+    } else if (document.activeElement === byId("noteBody") && key === "k") {
+      event.preventDefault();
+      applyMarkdownFormat("link");
     }
   });
 }

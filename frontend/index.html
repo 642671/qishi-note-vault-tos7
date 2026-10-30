@@ -21,7 +21,7 @@
     }());
   </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4ed8'/%3E%3Cpath d='M9 7h15v18H9z' fill='%23eff6ff'/%3E%3Cpath d='M13 11h7M13 16h7M13 21h4' stroke='%231d4ed8' stroke-width='2'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css?v=1.0.015">
+  <link rel="stylesheet" href="./styles.css?v=1.0.016">
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true">
@@ -37,6 +37,7 @@
     <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.4 11.6-8.5 8.5a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></symbol>
+    <symbol id="i-note-export" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 11v7M9 15l3 3 3-3"/></symbol>
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></symbol>
   </svg>
@@ -132,6 +133,9 @@
             <button id="previewButton" class="tool-button" type="button" title="切换预览">
               <svg><use href="#i-eye"></use></svg>
             </button>
+            <button id="exportNoteButton" class="tool-button" type="button" title="导出当前笔记为 Markdown（Ctrl+Shift+E）">
+              <svg><use href="#i-note-export"></use></svg>
+            </button>
             <button id="pinButton" class="tool-button" type="button" title="置顶或取消置顶">
               <svg><use href="#i-pin"></use></svg>
             </button>
@@ -153,6 +157,19 @@
           <input id="noteTags" type="text" maxlength="1000" placeholder="工作, 学习, 项目；最多 20 个标签">
           </label>
           <span id="saveState" class="save-state">已保存</span>
+        </div>
+
+        <div class="format-toolbar" role="toolbar" aria-label="Markdown 格式">
+          <span class="format-toolbar-label">Markdown</span>
+          <button class="format-button" type="button" data-format="h2" title="二级标题">H2</button>
+          <button class="format-button" type="button" data-format="bold" title="粗体（Ctrl+B）"><strong>B</strong></button>
+          <button class="format-button" type="button" data-format="italic" title="斜体（Ctrl+I）"><em>I</em></button>
+          <button class="format-button" type="button" data-format="quote" title="引用">&gt;</button>
+          <button class="format-button" type="button" data-format="bullet" title="无序列表">•</button>
+          <button class="format-button" type="button" data-format="ordered" title="有序列表">1.</button>
+          <button class="format-button format-code" type="button" data-format="code" title="行内代码">&lt;/&gt;</button>
+          <button class="format-button" type="button" data-format="link" title="链接（Ctrl+K）">链接</button>
+          <span id="documentStats" class="document-stats" aria-live="polite">0 字 · 0 行</span>
         </div>
 
         <div class="editor-grid" id="editorGrid">
@@ -193,6 +210,7 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=1.0.015"></script>
+  <script src="./editor_tools.js?v=1.0.016"></script>
+  <script src="./app.js?v=1.0.016"></script>
 </body>
 </html>

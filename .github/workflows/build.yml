@@ -21,6 +21,17 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check frontend JavaScript
+        run: |
+          node --check frontend/editor_tools.js
+          node --check frontend/app.js
+          node --test tests/editor_tools.test.js
+
       - name: Run backend tests
         run: python -m unittest discover -s backend/tests -v
 
